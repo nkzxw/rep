@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<LINK href="favicon.ico" type="image/x-icon" rel="shortcut icon">
+<title>改种子</title>
+<link href="css/bootstrap.css" rel="stylesheet" />
+<link href="css/bootstrap-theme.min.css" rel="stylesheet" />
+<link href="css/bootstrap.min.css" rel="stylesheet" />
+<script src="js/jquery-2.0.3.min.js"></script>
+<script src="js/ajaxfileupload.js"></script>
+<script src="js/jquery.mask.js"></script>
+<script src="js/jquery-progress.js"></script>
+<style>
+#head_wrapper {
+	position: relative;
+	z-index: 5;
+	width: 480px;
+	margin: 0 auto;
+	padding-top: 120px;
+}
+
+#left {
+	width: 320px;
+	float: left;
+}
+
+#right {
+	margin-left: 325px;
+}
+
+.content {
+	height: 40px;
+	margin: 30px 0px;
+}
+
+.file {
+	width: 300px;
+	height: 45px;
+}
+
+input {
+	padding: 1px;
+}
+</style>
+</head>
+<body>
+	<div id="head_wrapper">
+		<div class="content">
+			<div id="left">
+				<input type="file" class="btn btn-primary btn-lg file" name="file"
+					id="file1" multiple="" />
+			</div>
+			<div id="right">
+				<button id="button" class="btn btn-primary btn-lg"
+					onclick="UploadData();return false;">上传</button>
+			</div>
+		</div>
+		<div id="ret" class="alert alert-muted"></div>
+	</div>
+	<script src="js/progress.js"></script>
+</body>
+</html>
