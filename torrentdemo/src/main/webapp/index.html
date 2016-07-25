@@ -1,5 +1,4 @@
-﻿<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <LINK href="favicon.ico" type="image/x-icon" rel="shortcut icon">
@@ -7,7 +6,7 @@
 <link href="css/bootstrap.css" rel="stylesheet" />
 <link href="css/bootstrap-theme.min.css" rel="stylesheet" />
 <link href="css/bootstrap.min.css" rel="stylesheet" />
-<script src="js/jquery-2.0.3.min.js"></script>
+<script src="js/jquery-1.8.3.min.js"></script>
 <script src="js/ajaxfileupload.js"></script>
 <script src="js/jquery.mask.js"></script>
 <script src="js/jquery-progress.js"></script>
@@ -42,22 +41,44 @@
 input {
 	padding: 1px;
 }
+
+.fileinput-button {
+	position: relative;
+	overflow: hidden;
+	display: inline-block;
+}
+
+.fileinput-button input {
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin: 0;
+	opacity: 0;
+	-ms-filter: 'alpha(opacity=0)';
+	font-size: 200px !important;
+	direction: ltr;
+	cursor: pointer;
+}
 </style>
 </head>
 <body>
 	<div id="head_wrapper">
 		<div class="content">
 			<div id="left">
-				<input type="file" class="btn btn-primary btn-lg file" name="file"
-					id="file1" multiple="" />
+				<span class="btn btn-success btn-block fileinput-button "> <span
+					class="glyphicon glyphicon-plus"> </span> <span>选取种子文件</span> <!-- The file input field used as target for the file upload widget -->
+					<input id="file1" type="file" name="file" accept=".torrent"
+					multiple="multiple">
+				</span>
 			</div>
 			<div id="right">
-				<button id="button" class="btn btn-primary btn-lg"
-					onclick="UploadData();return false;">上传</button>
+				<button id="button1" class="btn btn-success">清洗</button>
 			</div>
 		</div>
+		<div id="content"></div>
 		<div id="ret" class="alert alert-muted"></div>
 	</div>
+
 	<script src="js/progress.js"></script>
 </body>
 </html>

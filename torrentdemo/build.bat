@@ -1,0 +1,1 @@
+mvn compile && mvn package && RD /S /Q D:\xampp\tomcat\webapps\file && mvn cargo:run
