@@ -101,7 +101,7 @@ public class FileUploadServlet extends HttpServlet {
 		// relative to application's directory
 		String uploadPath = getServletContext().getRealPath("")
 				+ File.separator + UPLOAD_DIRECTORY;
-		// System.out.println(uploadPath + "," + request.getContextPath());
+		// System.out.println( request.getContextPath());
 		// creates the directory if it does not exist
 		File uploadDir = new File(uploadPath);
 		if (!uploadDir.exists()) {
@@ -194,19 +194,29 @@ public class FileUploadServlet extends HttpServlet {
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		System.out.println(request.getServletPath());
+		String base = getServletContext().getRealPath("") + File.separator
+				+ UPLOAD_DIRECTORY;
+		String filename = URLDecoder.decode(request.getRequestURI(), "utf-8");
+		filename = base
+				+ File.separator
+				+ filename.substring(filename.lastIndexOf("/") + 1,
+						filename.length());
 
-		String filename = URLDecoder.decode(request.getServletPath(), "utf-8");
-		System.out.println(filename);
+		// System.out.println(request.getContextPath());
+		// System.out.println((request.getRequestURI()));
+		// System.out.println(filename);
 		// 读取要下载的文件
 		File f = new File(filename);
 		if (f.exists()) {
+
 			FileInputStream fis = new FileInputStream(f);
 			filename = URLEncoder.encode(f.getName(), "utf-8");
 			// 解决中文文件名下载后乱码的问题
 			byte[] b = new byte[fis.available()];
 			fis.read(b);
 			response.setCharacterEncoding("utf-8");
+//			response.setContentType("application/octet-stream; charset=UTF-8");
+			response.setContentType("text/html; charset=UTF-8");
 			response.setHeader("Content-Disposition", "attachment; filename="
 					+ filename + "");
 			// 获取响应报文输出流对象
@@ -215,8 +225,11 @@ public class FileUploadServlet extends HttpServlet {
 			out.flush();
 			out.close();
 		} else {
+			response.setContentType("text/html; charset=UTF-8");
+
 			getServletContext().getRequestDispatcher("/upload.jsp").forward(
 					request, response);
 		}
 	}
+
 }
