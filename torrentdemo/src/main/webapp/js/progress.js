@@ -16,7 +16,8 @@ $("#button1").on(
 				fileElementId : 'file1',
 				dataType : 'json',
 				complete : function() {
-					$button1.prop("disabled", 0)
+					$button1.prop("disabled", 0);
+					$("#content").empty();
 				},
 				success : function(data, status) {
 					if (data) {
@@ -39,6 +40,7 @@ var inputElement = document.getElementById("left");
 inputElement.addEventListener("change", handleFiles, false);
 function handleFiles() {
 	$button1.prop("disabled", 0);
+	$ret.empty();
 	var fileList = document.getElementById("file1").files;
 	var dd = document.getElementById('content');
 	dd.innerHTML = "";

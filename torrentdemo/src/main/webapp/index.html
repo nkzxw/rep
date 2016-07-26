@@ -14,18 +14,18 @@
 #head_wrapper {
 	position: relative;
 	z-index: 5;
-	width: 480px;
+	width: 425px;
 	margin: 0 auto;
 	padding-top: 120px;
 }
 
 #left {
-	width: 320px;
+	width: 85%;;
 	float: left;
 }
 
 #right {
-	margin-left: 325px;
+	margin-left: 86%;;
 }
 
 .content {
@@ -59,26 +59,74 @@ input {
 	direction: ltr;
 	cursor: pointer;
 }
+
+.big {
+	padding-left: 284px;
+	padding-right: 284px;
+}
+
+.jhp {
+	position: absolute;
+	top: 16px;;
+	right: 0;
+	width: 100%;
+	font-size: 13px;
+	line-height: 24px;
+}
+
+.gmp {
+	color: #5cb85c; //
+	background-color: #5cb85c; //
+	border-color: #4cae4c;
+}
+
+.gb_db {
+	float: right;
+	min-width: 255px;
+	padding-left: 30px;
+	padding-right: 80px;
+	position: relative;
+	text-align: right;
+	z-index: 986;
+	-webkit-align-items: center;
+	align-items: center;
+	-webkit-justify-content: flex-end;
+	justify-content: flex-end;
+	-webkit-user-select: none;
+}
+
+a.gb_P { //
+	color: #000;
+	color: #5cb85c;
+}
 </style>
 </head>
 <body>
-	<div id="head_wrapper">
-		<div class="content">
-			<div id="left">
-				<span class="btn btn-success btn-block fileinput-button "> <span
-					class="glyphicon glyphicon-plus"> </span> <span>选取种子文件</span> <!-- The file input field used as target for the file upload widget -->
-					<input id="file1" type="file" name="file" accept=".torrent"
-					multiple="multiple">
-				</span>
-			</div>
-			<div id="right">
-				<button id="button1" class="btn btn-success">清洗</button>
+	<div class="jhp">
+		<div style="top: 0; left: 0; right: 0; width: 100%">
+			<div class="gb_db gmp">
+				<a class="gb_P" href="https://mail.google.com/mail/?tab=wm">Gmail</a>
 			</div>
 		</div>
-		<div id="content"></div>
-		<div id="ret" class="alert alert-muted"></div>
 	</div>
-
+	<div class="big">
+		<div id="head_wrapper">
+			<div class="content" style="padding-top: 109px">
+				<div id="left">
+					<span class="btn btn-success btn-block fileinput-button "> <span
+						class="glyphicon glyphicon-plus"></span> <span>选取种子文件</span> <!-- The file input field used as target for the file upload widget -->
+						<input id="file1" type="file" name="file" accept=".torrent"
+						multiple="multiple">
+					</span>
+				</div>
+				<div id="right">
+					<button id="button1" class="btn btn-block btn-success">清洗</button>
+				</div>
+			</div>
+			<div id="content" style="clear: both"></div>
+			<div id="ret"></div>
+		</div>
+	</div>
 	<script src="js/progress.js"></script>
 </body>
 </html>
