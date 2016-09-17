@@ -26,7 +26,7 @@ scheduler.daemonic = False
 def job_function():
     #sleep 一段时间
     print 'Tick! The time is: %s' % datetime.now()
-    req = urllib2.Request("http://ccc.bwstor.com.cn/modules/account/ldapcheck.php",urllib.urlencode({"user_name":"zhangxingwei","user_pw":"devialcpboy"}))
+    req = urllib2.Request("http://ccc.bwstor.com.cn/modules/account/ldapcheck.php",urllib.urlencode({"user_name":"zhangxingwei","user_pw":""}))
     resp = urllib2.urlopen(req)
     #print resp.read()
     req = urllib2.Request("http://ccc.bwstor.com.cn/modules/Attendance/CheckWork.php",urllib.urlencode({"submit1":"下班打卡"}))
