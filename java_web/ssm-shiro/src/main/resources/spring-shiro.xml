@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+
+	xmlns:context="http://www.springframework.org/schema/context"
+
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd  
+	">
+	<!-- 自动扫描 -->
+	<context:component-scan base-package="com.service" />
+
+	<!--配置数据源属性文件 -->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<value>/WEB-INF/configs/mysql.properties</value>
+		</property>
+	</bean>
+
+	<!-- 配置数据源 -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName">
+			<value>${jdbc.driver}</value>
+		</property>
+		<property name="url">
+			<value>${jdbc.url}</value>
+		</property>
+		<property name="username">
+			<value>${jdbc.user}</value>
+		</property>
+		<property name="password">
+			<value>${jdbc.pwd}</value>
+		</property>
+	</bean>
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!--<property name="configLocation" value="classpath:mybatis.xml" /> -->
+		<property name="mapperLocations" value="classpath*:mappers/*.xml" />
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- MyBatis-Spring的自动装配机制 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.dao" />
+	</bean>
+
+	<!-- dao 配置 -->
+	<bean id="userDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="com.dao.UserDao" />
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+	</bean>
+	<bean id="roleDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="com.dao.RoleDao" />
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+	</bean>
+	<!-- dao 配置结束 -->
+
+	<bean id="encoder" class="com.realm.PasswordEncoder">
+		<property name="algorithmName" value="MD5"></property>
+		<property name="hashIterations" value="2"></property>
+	</bean>
+
+	<!--shiro主过滤器的配置 -->
+	<bean id="shiroSecurityFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<property name="securityManager" ref="securityManager"></property>    <!-- 集成上安全管理器 -->
+		<property name="loginUrl" value="/pages/login.jsp"></property>			    <!-- 在访问需要登陆的页面时 跳转到登陆界面 -->
+		<property name="successUrl" value="/index.jsp"></property>			<!-- 登陆成功后跳转的页面 -->
+		<property name="unauthorizedUrl" value="/pages/login.jsp"></property><!-- 没有权限默认跳转 -->
+		<property name="filters">
+			<map>
+				<entry key="authc">
+					<bean
+						class="org.apache.shiro.web.filter.authc.PassThruAuthenticationFilter"></bean>
+				</entry>
+			</map>
+		</property>
+		<property name="filterChainDefinitions">
+			<value>
+				/login.action=anon   <!-- anon 匿名能访问 -->
+				/register.action=anon   <!-- anon 匿名能访问 -->
+				/pages/register.jsp=anon
+				/pages/admin.jsp=roles[admin]
+				/bam/**=roles[admin]	<!--要访问bam 空间下的资源要有 admin 角色 -->
+
+				/user/login*=anon
+				/user/register*=anon
+				/user/admin*=authc
+				/user/student*/**=roles[teacher]
+				/user/teacher*/**=perms["user:create"]
+
+				/**=authc
+				<!-- /**=authc 拦截除了 anon 的所有 -->
+			</value>
+		</property>
+	</bean>
+
+	<!-- 安全管理器 -->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="realm" ref="shiroRealm"></property>
+	</bean>
+	<bean id="shiroRealm" class="com.realm.ShiroRealm">
+		<property name="userService" ref="userService"></property>
+		<property name="roleService" ref="roleService"></property>
+		<property name="credentialsMatcher" ref="hashedCredentialsMatcher" />
+	</bean>
+
+	<bean name="hashedCredentialsMatcher"
+		class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+		<property name="hashAlgorithmName" value="MD5"></property>
+		<property name="storedCredentialsHexEncoded" value="true"></property>	<!-- 默认是true，此时用的是密码加密用的是Hex编码；false时用Base64编码 -->
+		<property name="hashIterations" value="2"></property>
+	</bean>
+
+
+</beans>
