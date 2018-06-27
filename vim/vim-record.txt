@@ -1,0 +1,241 @@
+vim插件
+vim tags设置tags路径。
+set tags=tags;
+vim taglist命令
+:Tlist
+:ts(ts助记字：tagslist)
+安装cscope
+vim文件浏览（自带netrw.vim插件）netrw.vim pi_netrw.txt edit命令
+:edit .
+:e /sourcepath/
+
+多窗口
+vim切换窗口：Ctrl + w，w
+多文件的taglist窗口包含多文件tags，如何快速浏览到下一个文件tags。
+vim如何一次命令退出多窗口：qa
+
+滚动
+ctrl-e 屏幕向下滚动一行；
+ctrl-y 屏幕向上滚动一行；
+ctrl-d 屏幕向下滚动半屏；
+ctrl-u 屏幕向上滚动半屏；
+ctrl-f 屏幕向下滚动一屏；
+ctrl-b 屏幕向上滚动一屏；
+shift-m 将光标移动到屏幕中间，可以在ctrl-f 翻屏后使用。
+在上下移动光标时，光标的上方或下方至少会保留显示的行数
+set scrolloff=7
+
+
+c语言特殊用法
+函数声明和定义，跳转到定义
+全局变量和局部变量，跳转到定义
+光标回到上一次位置：
+ctrl+o ctrl + i
+Ctrl+g
+G
+gg
+
+
+You may see the cursor position in the lower right corner of the screen
+This happens when the 'ruler' option is set (see  :help 'ruler')
+
+
+When the search reaches the end of the file it will continue at the
+start, unless the 'wrapscan' option has been reset.
+
+
+ Lesson 7.1: GETTING HELP
+
+
+                      ** Use the on-line help system **
+
+  Vim has a comprehensive on-line help system.  To get started, try one of
+  these three:
+        - press the <HELP> key (if you have one)
+        - press the <F1> key (if you have one)
+        - type   :help <ENTER>
+
+  Read the text in the help window to find out how the help works.
+  Type  CTRL-W CTRL-W   to jump from one window to another.
+  Type    :q <ENTER>    to close the help window.
+
+  You can find help on just about any subject, by giving an argument to the
+  ":help" command.  Try these (don't forget pressing <ENTER>):
+
+        :help w
+        :help c_CTRL-D
+        :help insert-index
+        :help user-manual
+
+vim配置快捷编辑与source insight、VS的快捷比较：
+
+快速查找函数调用、函数定义、符号
+快速注释一行、多行
+快速删除一行、多行
+快速剪切一个、连续几个单词
+模糊搜索源文件、函数变量标签
+代码补全：基于标签查找的、工程解析分析的
+
+多行注释：
+1. 首先按esc进入命令行模式下，按下Ctrl + v，进入列（也叫区块）模式;
+2. 在行首使用上下键选择需要注释的多行;
+3. 按下键盘（大写）“I”键，进入插入模式；
+4. 然后输入注释符（“//”、“#”等）;
+5. 最后按下“Esc”键。
+在按下 esc键后，会稍等一会才会出现注释。
+
+imap 
+vmap
+cmap 
+
+v命令，可视模式
+ctrl+v命令，列（也叫区块）模式
+以行为单位进行选取的可视行模式，使用“V”键进入（也就是Shift+v）；
+以块为单位进行选取的可视块模式，使用“Ctrl+v”键进入。
+
+删除当前行并重写
+imap <A-r> <Esc>ddO
+写代码时有时想整行删掉后重写，按住“del”或者用鼠标选择都是不够有效率，这样做最快捷。
+
+删除到行尾
+imap <A-u> <Esc>wd$i
+插入模式有删除光标前到行首，但是没有删除到行尾，有时也学要用，映射一下。
+
+删除光标处的单词
+imap <A-w> <Esc>ebdei
+“插入上次删除的单词
+imap <A-W> <C-R>w
+有时想把单词换成另一个，像删除整行一样，移动好光标，然后按住“del”或者鼠标选择都是不够效率，这个映射一下子就把单词删掉。
+<A-W>就把刚用<A-w>删除的单词插入回来。
+
+在当前目录下为所有的 C 文件生成标签文件，使用下面的这个命令:
+ctags *.c
+使用下面的命令可以分割当前窗口并跳转到光标下的标签:
+CTRL-W ]
+通过设定 ’tags’ 选项，你可以使用多个相关的标签文件。比如:
+:set tags=./tags,./../tags,./*/tags
+
+这会使 Vim 找到当前文件所在目录及其父目录和所有子目录下的标签文件。
+这已经是不少的标签文件了，但也许仍不够。
+比如，当编辑 "~/proj/src" 目录下的一个文件时，
+你无法找到 "~/proj/sub/tags" 目录下的标签文件。
+对这种情况，Vim 提供了一个查找整个目录树下标签文件的方法，比如:
+:set tags=~/proj/**/tags
+当 Vim 在多个地方查找标签文件时，你会听到硬盘在格格作响。这样会有点慢。
+在这种情况下，你最好将这些时间花在生成一个大的标签文件上。
+这得借助上面提到的 "Exuberant ctags" 程序。
+它有一个选项可以搜索整个目录树:
+cd ~/proj
+ctags -R .
+:set tags=~/proj/tags
+
+这样做的好处是 "Exuberant ctags" 可以识别多种文件类型，它不仅适用于 C 和 C++程序，还适用于 Eiffel 甚至 Vim 脚本。
+请参考 ctags 文档进行调整所用参数。
+
+当一个函数 (或类中的方法) 被定义多次，":tags" 命令会跳转到第一处。
+如果在当前文
+件中存在匹配，那它将会被首先使用。
+你现在可以跳转到同一个标签的其它匹配处:
+:tnext
+
+重复执行这个命令可以找到更多的匹配。
+可以用这些命令在各匹配的标签间移动:
+:tfirst 到第一个匹配
+:[count]tprevious 向前 [count] 个匹配
+:[count]tnext 向后 [count] 个匹配
+:tlast 到最后一个匹配
+如果没有指定，[count] 缺省为一。
+
+错误：
+"E429: File "path/to/file.c" does not exist"
+I was not using absolute path when creating cscope.files. 
+That was the issue.
+
+set autochdir 跳转后切换当前目录，
+vim -t foo，如果foo不在根目录文件内，当前目录改为foo所在目录，
+cscope 数据库内容是相对路径，查到当前路径+相对路径，不能跳转。
+ctags 设置tag文件路径前设置autochdir，可能导致不使用当前路径+相对路径。。。
+一般情况下我们生成tags文件用的命令是
+ctags -R .
+这样生成的tags文件是基于相对路径的，要生成基于绝对路径的tags，只需把.换成｀pwd｀：
+ctags -R `pwd`
+
+错误：
+Error detected while processing /root/.vim/plugin/cscope_maps.vim:
+line   42:
+E568: duplicate cscope database not added
+解决删除 42行相关。nocscopeverbose 
+
+若置位了 ’cscopetag’ 选项，
+":tag" 命令，CTRL-] 以及 "vim -t"
+都会使用:cstag而不是缺省的 :tag。
+也就是说，设定 ’cst’ 选项意味着你总同时搜索 cscope 数据库和标签文件。
+缺省值为关。
+例如:
+:set cst
+:set nocst
+
+如果你同时使用 cscope 和 ctags， 
+:cstag 允许你在跳转前对两者都进行查询。
+例如，你可以选择先查询 cscope 数据库，如果无法找到匹配，再查询标签文件。
+’csto’ 的值决定 :cstag 命令查找的次序。
+如果 ’csto’ 被设为 0，cscope 数据库先被搜索，搜索失败的情况下在搜索标签文件。
+如果 ’csto’ 被设为 1，标签文件会在cscope 数据库之前被搜索。
+缺省值为 0。
+例:
+:set csto=0
+
+在vimrc中配置好了快捷键
+nmap <C-\>g :cs find g <C-R>=expand("<cword>")<CR><CR>
+VIM中操作时，按下 CTRL+\+g 就是没作用。
+之前遇到过也解决了但是没记录，
+原来是先按ctrl不放，按\键，同时放开，快速按g键！
+
+set nocompatible            " be iMproved, required
+filetype off                      " required
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+Plugin 'VundleVim/Vundle.vim'
+Plugin 'tpope/vim-fugitive'
+Plugin 'L9'
+Plugin 'git://git.wincent.com/command-t.git'
+Plugin 'file:///home/gmarik/path/to/plugin'
+Plugin 'rstacruz/sparkup'
+Plugin 'user/L9', {'name': 'newL9'}
+call vundle#end()                " required
+filetype plugin indent on        " required
+
+ctags -I __THROW --file-scope=yes --langmap=c:+.h --languages=c,c++ --links=yes --c-kinds=+p -R -f ~/.vim/systags /usr/include /usr/local/include
+
+ctags -I __THROW -I __attribute__ -I __attribute_pure__ -I __nonnull --file-scope=yes --langmap=c:+.h --languages=c,c++ --links=yes --c-kinds=+p --c++-kinds=+p --fields=+iaS --extra=+q -R -f ~/.vim/systags /usr/include /usr/local/include
+
+Vim配置文件种类，加载顺序，基本配置
+通过查看:version可知Vim配置文件分为三类：
+     系统 vimrc 文件: "$VIM/vimrc"
+     用户 vimrc 文件: "$HOME/.vimrc"
+     用户 exrc 文件: "$HOME/.exrc"
+     $VIM 预设值: "/usr/local/share/vim"
+其各自的加载顺序可通过:scriptname来获知：
+help initialization 或者 help startup
+  1: /etc/vimrc
+  2: /usr/share/vim/vim74/syntax/syntax.vim
+  3: /usr/share/vim/vim74/syntax/synload.vim
+  4: /usr/share/vim/vim74/syntax/syncolor.vim
+  5: /usr/share/vim/vim74/filetype.vim
+  6: /usr/share/vim/vim74/ftplugin.vim
+  7: ~/.vimrc
+  8: /usr/share/vim/vim74/ftoff.vim
+  9: ~/.vim/bundle/Vundle.vim/autoload/vundle.vim
+ 10: ~/.vim/bundle/Vundle.vim/autoload/vundle/config.vim
+ 11: ~/.vim/plugin/cscope_maps.vim
+ 12: ~/.vim/bundle/taglist-plus/plugin/taglist-plus.vim
+ 13: /usr/share/vim/vim74/plugin/getscriptPlugin.vim
+ 14: /usr/share/vim/vim74/plugin/gzip.vim
+ 15: /usr/share/vim/vim74/plugin/matchparen.vim
+ 16: /usr/share/vim/vim74/plugin/netrwPlugin.vim
+ 17: /usr/share/vim/vim74/plugin/rrhelper.vim
+ 18: /usr/share/vim/vim74/plugin/spellfile.vim
+ 19: /usr/share/vim/vim74/plugin/tarPlugin.vim
+ 20: /usr/share/vim/vim74/plugin/tohtml.vim
+ 21: /usr/share/vim/vim74/plugin/vimballPlugin.vim
+ 22: /usr/share/vim/vim74/plugin/zipPlugin.vim

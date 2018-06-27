@@ -1,0 +1,170 @@
+Vim+Ctags+Cscope安装
+
+一：使用说明：
+‘/’查找忽略大小写，比如需要查找“book”，当输入/b的时候会自动找到第一个以"b"开头的单词
+实现C程序的缩减
+查询中自由跳转
+双击F3调出函数，变量等tags
+单击F3出现文件管理器（重复这个过程关闭文件管理器）。以上产生的子区域都是通过Ctrl+ww来相互切换
+单击F10仅加载tags和cscope文件
+将光标指向一些函数名或者变量名，使用Ctrl+\+以下字母来跳转，并使用Ctrl+o跳转回来。
+s - 查找C语言符号，即查找函数名，宏，枚举值等出现的地方。
+g - 查找函数名，宏，枚举值等定义的位置，类似ctags所提供的功能。
+d - 查找本函数调用的函数
+c - 查找调用本函数的函数
+t -  查找指定字符串
+e - 查找egrep模式，相当于egrep功能，但查找的速度快多了。
+f -  查找并打开文件，类似于vim的find功能，
+i - 查找包含本文件的文件。
+gd转到当前光标所指的局部变量的定义
+× - 转到当前光标所指的单词下一次出现的地方
+# - 转到当前光标所指的单词上一次出现的地方
+Ctrl+]转到函数定义的地方
+Ctrl+o回退到函数调用的地方
+
+二：安装
+建立三个目录：mkdir ~/.vim/{plugin,doc,syntax} –p
+sudo apt-get install vim
+sudo apt-get install exuberant-ctags
+sudo apt-get install cscope
+
+插件安装：解压到home目录下的.vim子目录中。
+
+插件autoload_cscope.vim：
+http://www.vim.org/scripts/script.php?script_id=157
+
+类似 ctags设定set autochdir set tags=tags;
+在项目根目录生成总的tags，任意子目录下即可自动加载.
+用了这个插件，项目根目录生成cscope.out，随便钻到本项目哪个子目录下，自动正常加载，正常搜索.
+执行 ":cs s" (这s是show的缩写) 来查看与当前vim窗口关联的所有cscope文件的信息。
+
+插件TagList：
+http://www.vim.org/scripts/download_script.php?src_id=7701
+
+插件WinManager（调整窗口布局）：
+http://www.vim.org/scripts/download_script.php?src_id=754
+
+运行：ctags -R -f ~/.vim/systags --c-kinds=+p --c++-kinds=+px --fields=+iaS --extra=+q --python-kinds=-i /usr/include /usr/local/include
+
+三：vimrc
+下载的我的配置文件：
+https://files.cnblogs.com/files/kent-hu/vimrc.7z
+解压并复制附件中的.vimrc到工作目录下：~/.vimrc
+运行：source ~/.vimrc
+我的配置中并不包含代码书写辅助功能，如果需要函数补齐功能或者原型提示、python的文档参考等等功能，可以参考这个链接：
+http://www.cnblogs.com/ToDoToTry/archive/2011/09/07/2170120.html
+更新.vimrc
+https://files.cnblogs.com/files/kent-hu/vimrc_package.tar
+
+
+set wildmenu "增强模式中的命令行自动完成操作
+set foldmethod=manual "设定折叠方式为手动
+set cin "实现C程序的缩进
+set sta "插入<tab>时使用’shiftwidth’
+set backspace=2 "指明在插入模式下可以使用<BS>删除光标前面的字符
+syntax enable "设置高亮关键字显示
+set nocompatible "去掉讨厌的有关vi一致性模式，避免以前版本的一些bug和局限
+set number "显示行号
+filetype on "检测文件的类型
+set history=1000 "记录历史的行数
+set background=dark "背景使用黑色
+set autoindent
+set smartindent
+"上面两行在进行编写代码时，在格式对起上很有用；
+"第一行，vim使用自动对起，也就是把当前行的对起格式应用到下一行；
+"第二行，依据上面的对起格式，智能的选择对起方式，对于类似C语言编写上很有用
+set tabstop=4
+set shiftwidth=4
+"第一行设置tab键为4个空格，第二行设置当行之间交错时使用4个空格
+set showmatch "设置匹配模式，类似当输入一个左括号时会匹配相应的那个右括号
+set ruler "在编辑过程中，在右下角显示光标位置的状态行
+set incsearch
+"查询时非常方便，如要查找book单词，当输入到/b时，会自动找到第一
+"个b开头的单词，当输入到/bo时，会自动找到第一个bo开头的单词，依
+"次类推，进行查找时，使用此设置会快速找到答案，当你找要匹配的单词
+"时，别忘记回车。
+set enc=utf-8     	"设置编码为中文
+set winaltkeys=no 	"Alt组合键不映射到菜单上
+set laststatus=2  	"总是出现状态栏
+set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P> "设置状态栏
+set hidden        	"设置隐藏已修改buffer
+autocmd FileType python setlocal et sta sw=4 sts=4
+set ic            	"查找时忽略大小nc_Winwidth=0
+set clipboard+=unnamed 	"Vim 的默认寄存器和系统剪贴板共享
+
+
+let Tlist_Use_Right_Window=1     "把方法列表放在屏幕的右侧
+let Tlist_File_Fold_Auto_Close=1 "让当前不被编辑的文件的方法列表自动折叠起来，这样可以节约一些屏幕空间
+let Tlist_Show_One_File = 1      "不同时显示多个文件的tag，只显示当前文件的 
+let Tlist_Exit_OnlyWindow =  1   "如果taglist窗口是最后一个窗口，则退出vim 
+let Tlist_Auto_Open = 1          "启动vim后自动打开taglist窗口
+noremap <F8> :TlistToggle<CR> "设置taglist打开关闭的快捷键F8
+map <F3><F3> :TlistToggle<cr> "映射双击F3调出Taglist的符号浏览器
+map <F3> :WMToggle<cr> "映射F3为功能键调出winmanager的文件浏览器
+let g:AutoOpenWinManager = 1  "在进入vim时自动打开winmanager
+let g:autocscope_menus=0 "关闭autocscope插件的快捷健映射.防止和我们定义的快捷键冲突.
+"let g:winManagerWindowLayout=’FileExplorer|TagList’ “你要是喜欢这种布局可以注释掉这一行
+
+
+
+set tags+=~/.vim/systags "将系统已经生成的tags导入
+
+"映射F10为添加cscope和ctags
+map <F10> :call Do_CsTag()<CR>
+map <F10><F10> :call Add_CsTag()<CR>
+nmap <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>   
+nmap <C-\>g :cs find g <C-R>=expand("<cword>")<CR><CR>   
+nmap <C-\>c :cs find c <C-R>=expand("<cword>")<CR><CR>   
+nmap <C-\>t :cs find t <C-R>=expand("<cword>")<CR><CR>   
+nmap <C-\>e :cs find e <C-R>=expand("<cword>")<CR><CR>   
+nmap <C-\>f :cs find f <C-R>=expand("<cfile>:)<CR><CR>   
+nmap <C-\>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
+nmap <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>
+
+function Do_CsTag()
+    silent! execute "!ctags -R '.'"
+    if(executable('cscope') && has("cscope") )
+        silent! execute "!find -L `pwd` -name '*.h' -o -name '*.c' -o -name '*.cpp' -o -name '*.java' -o -name '*.cs' -o     -name '*.cxx' -o -name '*.hxx'> cscope.files -o -name '*.hpp' -o -name '*.py'"
+    endif
+    silent! execute "!cscope -bq"
+    silent! execute "call Add_CsTag()"
+endf
+
+function Add_CsTag()
+    if filereadable("cscope.out")
+        execute "cs add cscope.out"
+        execute "set tags+=./tags"
+    endif
+endf
+
+silent! execute "call Add_CsTag()"
+
+set autoread "设置当文件被修改时自动载入
+set completeopt=preview,menu "代码补全
+set mouse=a " 启用鼠标  
+
+"括号匹配
+vnoremap $1 <esc>`>a)<esc>`<i(<esc>
+vnoremap $2 <esc>`>a]<esc>`<i[<esc>
+vnoremap $3 <esc>`>a}<esc>`<i{<esc>
+vnoremap $$ <esc>`>a"<esc>`<i"<esc>
+vnoremap $q <esc>`>a'<esc>`<i'<esc>
+vnoremap $e <esc>`>a"<esc>`<i"<esc>
+set cursorline "光标所在行显示一条横线
+set runtimepath+=~/.vim/bundle/YouCompleteMe
+let g:ycm_collect_identifiers_from_tags_files = 1           " 开启 YCM 基于标签引擎
+let g:ycm_collect_identifiers_from_comments_and_strings = 1 " 注释与字符串中的内容也用于补全
+let g:syntastic_ignore_files=[".*\.py$"]
+let g:ycm_seed_identifiers_with_syntax = 1                  " 语法关键字补全
+let g:ycm_complete_in_comments = 1
+let g:ycm_confirm_extra_conf = 0
+let g:ycm_key_list_select_completion = ['<c-n>', '<Down>']  " 映射按键, 没有这个会拦截掉tab, 导致其他插件的tab不能用.
+let g:ycm_key_list_previous_completion = ['<c-p>', '<Up>']
+let g:ycm_complete_in_comments = 1                          " 在注释输入中也能补全
+let g:ycm_complete_in_strings = 1                           " 在字符串输入中也能补全
+let g:ycm_collect_identifiers_from_comments_and_strings = 1 " 注释和字符串中的文字也会被收入补全
+let g:ycm_global_ycm_extra_conf='~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
+let g:ycm_show_diagnostics_ui = 0                           " 禁用语法检查
+inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>" |            " 回车即选中当前项
+nnoremap <c-j> :YcmCompleter GoToDefinitionElseDeclaration<CR>|     " 跳转到定义处
+"let g:ycm_min_num_of_chars_for_completion=2                 " 从第2个键入字符就开始罗列匹配项
