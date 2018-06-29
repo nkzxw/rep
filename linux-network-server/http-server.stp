@@ -1,10 +1,15 @@
 //stap -v http-server.stp -x `pgrep http-server` -DMAXSKIPPED=102400 -o /tmp/http-server.log
 
+//https://sourceware.org/systemtap/examples/general/callgraph.txt
+//https://sourceware.org/systemtap/examples/general/callgraph.stp
+
 //https://sourceware.org/systemtap/examples/general/para-callgraph.stp
 //https://sourceware.org/systemtap/examples/general/para-callgraph.txt
 
 //https://sourceware.org/systemtap/examples/process/strace.stp
 //https://sourceware.org/systemtap/examples/process/strace.txt
+
+//https://sourceware.org/systemtap/SystemTap_Beginners_Guide/systemtapscript-handler.html#thread_indent
 
 # suppress some run-time errors here for cleaner output
 //bin/true && exec stap --suppress-handler-errors --skip-badvars $0 ${1+"$@"}
