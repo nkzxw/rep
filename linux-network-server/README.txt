@@ -8,7 +8,7 @@ it.
 
     libevent homepage: http://www.monkey.org/~provos/libevent/
 
-To build libevent_echosrv:
+To build http-server:
 
     LIBEVENT=~/src/libevent-2.0.12-stable make
 
