@@ -1,0 +1,19 @@
+//stap -v http-server.stp -x `pgrep http-server`
+function filter_p()
+{
+	if (target() == 0) return 0; /* system-wide */
+	if ( pid() != target()) return 1; /* single-process */
+	return 0;
+}
+//probe process("/opt/libevent-examples/http-server/http-server").function("*") {
+probe process("http-server").function("*") {
+	//printf("%s: val=%s", probefunc(), $$vars); 
+	//printf("%s,%s\n",thread_indent(4),ppfunc());
+	//https://sourceware.org/systemtap/examples/locks/bkl.stp:
+	printf("%-25s:%s(0x%x 0x%x 0x%x 0x%x 0x%x)\n",ctime(gettimeofday_s()),probefunc(),u64_arg(1),u64_arg(2),u64_arg(3),u64_arg(4),u64_arg(5));
+}
+probe nd_syscall.* {
+	if (filter_p()) next;
+	printf("%-25s: call %s(%s)\n",ctime(gettimeofday_s()),name, argstr);
+}
+
