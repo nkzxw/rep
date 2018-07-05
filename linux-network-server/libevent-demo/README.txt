@@ -3,6 +3,8 @@ A simple http server using libevent.
 
 Requires libevent 2.0+.
 
+libevent-2.1.8-stable
+
 First you must download and build libevent, you do not need to install
 it.  
 
