@@ -6,6 +6,7 @@ call vundle#begin()
 call vundle#end()           
 filetype on
 set mouse=
+set list
 set number
 set shiftwidth=4
 set cindent
