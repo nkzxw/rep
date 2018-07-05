@@ -1,17 +1,19 @@
 vim插件
-vim tags设置tags路径。
+
+设置tags路径。
 set tags=tags;
 vim taglist命令
 :Tlist
 :ts(ts助记字：tagslist)
+
 安装cscope
 vim文件浏览（自带netrw.vim插件）netrw.vim pi_netrw.txt edit命令
 :edit .
 :e /sourcepath/
 
 多窗口
-vim切换窗口：Ctrl + w，w
-多文件的taglist窗口包含多文件tags，如何快速浏览到下一个文件tags。
+切换窗口：Ctrl + w，w
+多文件的taglist窗口包含多文件tags，如何快速浏览到下一个文件tags:[{
 vim如何一次命令退出多窗口：qa
 
 滚动
@@ -24,7 +26,6 @@ ctrl-b 屏幕向上滚动一屏；
 shift-m 将光标移动到屏幕中间，可以在ctrl-f 翻屏后使用。
 在上下移动光标时，光标的上方或下方至少会保留显示的行数
 set scrolloff=7
-
 
 c语言特殊用法
 函数声明和定义，跳转到定义
@@ -217,25 +218,16 @@ Vim配置文件种类，加载顺序，基本配置
      $VIM 预设值: "/usr/local/share/vim"
 其各自的加载顺序可通过:scriptname来获知：
 help initialization 或者 help startup
-  1: /etc/vimrc
-  2: /usr/share/vim/vim74/syntax/syntax.vim
-  3: /usr/share/vim/vim74/syntax/synload.vim
-  4: /usr/share/vim/vim74/syntax/syncolor.vim
-  5: /usr/share/vim/vim74/filetype.vim
-  6: /usr/share/vim/vim74/ftplugin.vim
-  7: ~/.vimrc
-  8: /usr/share/vim/vim74/ftoff.vim
-  9: ~/.vim/bundle/Vundle.vim/autoload/vundle.vim
- 10: ~/.vim/bundle/Vundle.vim/autoload/vundle/config.vim
- 11: ~/.vim/plugin/cscope_maps.vim
- 12: ~/.vim/bundle/taglist-plus/plugin/taglist-plus.vim
- 13: /usr/share/vim/vim74/plugin/getscriptPlugin.vim
- 14: /usr/share/vim/vim74/plugin/gzip.vim
- 15: /usr/share/vim/vim74/plugin/matchparen.vim
- 16: /usr/share/vim/vim74/plugin/netrwPlugin.vim
- 17: /usr/share/vim/vim74/plugin/rrhelper.vim
- 18: /usr/share/vim/vim74/plugin/spellfile.vim
- 19: /usr/share/vim/vim74/plugin/tarPlugin.vim
- 20: /usr/share/vim/vim74/plugin/tohtml.vim
- 21: /usr/share/vim/vim74/plugin/vimballPlugin.vim
- 22: /usr/share/vim/vim74/plugin/zipPlugin.vim
+
+
+Ctrl+s在Linux里是锁定屏幕的快捷键，如果要解锁，按下Ctrl+q就可以了。
+牢记这两个VIM组合键 Ctrl+s 和 Ctrl+q
+
+查看TAB及行尾空格:
+set list
+set nolist
+set listchars=tab:>-,trail:-
+set list是设置显示TAB，默认是用^I填充TAB。
+listchars选项用来设置TAB和行尾空格的显示。
+详见vi帮助：VIEWING TABS
+
