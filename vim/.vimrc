@@ -6,9 +6,10 @@ call vundle#begin()
 call vundle#end()           
 filetype on
 set mouse=
-set list
+"set list
 set number
 set shiftwidth=4
+set ff=unix "set fileformats=unix,dos
 set cindent
 set clipboard+=unnamed " Vim 的默认寄存器和系统剪贴板共享
 "syntax on
