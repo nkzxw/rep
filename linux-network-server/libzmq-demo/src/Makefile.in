@@ -32,7 +32,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-noinst_PROGRAMS = server$(EXEEXT) client$(EXEEXT)
+noinst_PROGRAMS = server$(EXEEXT) client$(EXEEXT) main$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -44,11 +44,17 @@ CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am_client_OBJECTS = zmq_client.$(OBJEXT) debuglog.$(OBJEXT)
+am_client_OBJECTS = zmq_client.$(OBJEXT) common.$(OBJEXT) \
+	debuglog.$(OBJEXT)
 client_OBJECTS = $(am_client_OBJECTS)
 client_LDADD = $(LDADD)
 client_DEPENDENCIES = ../libzmq/libzmq.a
-am_server_OBJECTS = zmq_server.$(OBJEXT) debuglog.$(OBJEXT)
+am_main_OBJECTS = test_bind_src_address.$(OBJEXT)
+main_OBJECTS = $(am_main_OBJECTS)
+main_LDADD = $(LDADD)
+main_DEPENDENCIES = ../libzmq/libzmq.a
+am_server_OBJECTS = zmq_server.$(OBJEXT) common.$(OBJEXT) \
+	debuglog.$(OBJEXT)
 server_OBJECTS = $(am_server_OBJECTS)
 server_LDADD = $(LDADD)
 server_DEPENDENCIES = ../libzmq/libzmq.a
@@ -65,8 +71,8 @@ CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
-SOURCES = $(client_SOURCES) $(server_SOURCES)
-DIST_SOURCES = $(client_SOURCES) $(server_SOURCES)
+SOURCES = $(client_SOURCES) $(main_SOURCES) $(server_SOURCES)
+DIST_SOURCES = $(client_SOURCES) $(main_SOURCES) $(server_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -162,8 +168,9 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
 INCLUDES = -I../include 
-server_SOURCES = zmq_server.cpp basetypes.h common.h debuglog.c debuglog.h 
-client_SOURCES = zmq_client.cpp basetypes.h common.h debuglog.c debuglog.h 
+main_SOURCES = test_bind_src_address.cpp
+server_SOURCES = zmq_server.cpp basetypes.h common.cpp common.h debuglog.c debuglog.h 
+client_SOURCES = zmq_client.cpp basetypes.h common.cpp common.h debuglog.c debuglog.h 
 LDADD = ../libzmq/libzmq.a 
 all: all-am
 
@@ -205,6 +212,9 @@ clean-noinstPROGRAMS:
 client$(EXEEXT): $(client_OBJECTS) $(client_DEPENDENCIES) 
 	@rm -f client$(EXEEXT)
 	$(CXXLINK) $(client_OBJECTS) $(client_LDADD) $(LIBS)
+main$(EXEEXT): $(main_OBJECTS) $(main_DEPENDENCIES) 
+	@rm -f main$(EXEEXT)
+	$(CXXLINK) $(main_OBJECTS) $(main_LDADD) $(LIBS)
 server$(EXEEXT): $(server_OBJECTS) $(server_DEPENDENCIES) 
 	@rm -f server$(EXEEXT)
 	$(CXXLINK) $(server_OBJECTS) $(server_LDADD) $(LIBS)
@@ -215,7 +225,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/debuglog.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bind_src_address.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zmq_client.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zmq_server.Po@am__quote@
 

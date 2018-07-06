@@ -1,7 +1,10 @@
+#ifndef COMMON_H_
+#define COMMON_H_
 #include <zmq.h>
 //#include <zmq_utils.h>
 #include <iostream>
 #include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
 #include <getopt.h>
 #include <string.h>
@@ -18,7 +21,6 @@
 #include "basetypes.h"
 #include "debuglog.h"
 using namespace std;
-
 #define MAX_PATH	260
 
 struct openargs{
@@ -47,13 +49,13 @@ struct openres{
 };
 
 struct closeres{
-	int  res;
-	int  res2;
+	int res;
+	int res2;
 };
 //lock and unlock
 struct lockres{
-	int  res;
-	int  res2;
+	int res;
+	int res2;
 };
 
 struct IO_RESULT 
@@ -69,7 +71,7 @@ typedef struct _GET_DELEGATION_ARGS{
 
 typedef struct enfs_fcb_state_id {
 	unsigned long   status;
-	unsigned int        seqid;
+	unsigned int       seqid;
 	char            other[20];
 }enfs_fcb_state_id;
 
@@ -98,18 +100,17 @@ struct ioctl_struct
 
 #define M_SIZE 512
 #define MAX_SERVER 10
-int g_hPipe = 0;
-void* g_context;
 
-extern int  gi1,gi2,gk1,gk2;
+extern int gi1,gi2,gk1,gk2;
 extern char * strDesired[7];
 extern char*strShare[8];
 
-struct proc_remote{
+class proc_remote{
 	char message[M_SIZE];
 	char ip_port[M_SIZE];
 	void* g_socket;
-	int  op_type;
+	int op_type;
+    public:
 	struct openargs g_opena;
 	struct openres g_openr;
 	struct closeargs g_closea;
@@ -119,8 +120,12 @@ struct proc_remote{
 	struct lockargs g_unlocka;
 	struct lockres g_unlockr;
 	enfs_fcb_delegation g_DelegationInfor;
-	
-	int inline openfile(openargs *t)
+	int g_shell_cmd; 
+	int g_shell_res;
+    public:
+	int process();
+	int doShellCmd(int cmd);
+	int openfile(openargs *t)
 	{
 		encodeOpen(t);
 		send();
@@ -129,7 +134,7 @@ struct proc_remote{
 		return 0;
 	}
 
-	int inline openfilex(openargs *t,struct openres *buff){
+	int openfilex(openargs *t,struct openres *buff){
 		encodeOpen(t);
 		//Log3(APP_LOG_ERROR,"%s,encodeOpen=%s",ip_port, message);
 		send();
@@ -141,7 +146,7 @@ struct proc_remote{
 		return 0;
 	}
 
-	int inline closefilex(struct openres *buff)
+	int closefilex(struct openres *buff)
 	{
 		printf("start test delegation closefilex \n");
 		g_closea.hFile = buff->hFile;
@@ -155,7 +160,7 @@ struct proc_remote{
 		return 0;
 	}
 
-	int inline checkopen2()
+	int checkopen2()
 	{
 		printf("start test delegation checkopen2 \n");
 		if (g_openr.hFile < 0) 
@@ -164,7 +169,7 @@ struct proc_remote{
 		return 1;
 	}
 
-	int inline closefile()
+	int closefile()
 	{
 		g_closea.hFile = g_openr.hFile;
 		g_closea.hFile2 = g_openr.hFile2;
@@ -175,7 +180,7 @@ struct proc_remote{
 		return 0;
 	}
 	
-	int inline lock(struct lockargs *t)
+	int lock(struct lockargs *t)
 	{
 		encodeLock(t);
 		send();
@@ -184,7 +189,7 @@ struct proc_remote{
 		return 0;
 	}
 	
-	int inline unlock(struct lockargs *t)
+	int unlock(struct lockargs *t)
 	{
 		encodeUnLock(t);
 		send();
@@ -194,7 +199,7 @@ struct proc_remote{
 		return 0;
 	}
 
-	int inline encodeOpen(struct openargs *t)
+	int encodeOpen(struct openargs *t)
 	{
 		memset(message,0,M_SIZE);
 		sprintf(message,"%u %s %s %lu", 1,
@@ -205,7 +210,7 @@ struct proc_remote{
 		return 0;
 	}
 
-	int inline encodeOpenR(struct openres *t)
+	int encodeOpenR(struct openres *t)
 	{
 		memset(message,0,M_SIZE);
 		sprintf(message,"%u %d %d", 2, 
@@ -215,7 +220,7 @@ struct proc_remote{
 		return 0;
 	}
 
-	int inline encodeLock(struct lockargs *t)
+	int encodeLock(struct lockargs *t)
 	{
 		memset(message,0,M_SIZE);
 		sprintf(message,"%u %d %d %lu %lu %lu", 3,
@@ -228,7 +233,7 @@ struct proc_remote{
 		return 0;
 	}
 
-	int inline encodeLockR(struct lockres *t)
+	int encodeLockR(struct lockres *t)
 	{
 		memset(message,0,M_SIZE);
 		sprintf(message,"%u %d %d", 4, 
@@ -238,7 +243,7 @@ struct proc_remote{
 		return 0;
 	}
 
-	int inline encodeUnLock(struct lockargs *t)
+	int encodeUnLock(struct lockargs *t)
 	{
 		memset(message,0,M_SIZE);
 		sprintf(message,"%u %d %d %lu %lu %lu", 5,
@@ -251,7 +256,7 @@ struct proc_remote{
 		return 0;
 	}
 
-	int inline encodeUnLockR(struct lockres *t)
+	int encodeUnLockR(struct lockres *t)
 	{
 		memset(message,0,M_SIZE);
 		sprintf(message,"%u %d %d", 6, 
@@ -261,7 +266,7 @@ struct proc_remote{
 		return 0;
 	}
 
-	int inline encodeClose(struct closeargs *t)
+	int encodeClose(struct closeargs *t)
 	{
 		memset(message,0,M_SIZE);
 		sprintf(message,"%u %d %d", 7, 
@@ -271,7 +276,7 @@ struct proc_remote{
 		return 0;
 	}
 
-	int inline encodeCloseR(struct closeres *t)
+	int encodeCloseR(struct closeres *t)
 	{
 		memset(message,0,M_SIZE);
 		sprintf(message,"%u %d %d", 8, 
@@ -358,7 +363,7 @@ struct proc_remote{
 		sscanf(message, "%u", &op_type);
 	}
 	
-	int inline enfs_filelock(int fd, struct lockargs liov)
+	int enfs_filelock(int fd, struct lockargs liov)
 	{
 		struct flock lock;
 		int ret = 0;
@@ -377,7 +382,7 @@ struct proc_remote{
 		return ret;
 	}
 
-	int inline enfs_fileunLock(int fd, struct lockargs liov)
+	int enfs_fileunLock(int fd, struct lockargs liov)
 	{
 		struct flock lock;
 		int ret = 0;
@@ -405,7 +410,7 @@ struct proc_remote{
 		Log2(APP_LOG_ERROR,"%s",buff);
 	}
 #endif
-	int inline decodeDelegationRes(enfs_fcb_delegation *t)
+	int decodeDelegationRes(enfs_fcb_delegation *t)
 	{
 		memcpy(t,message+strlen(message)+1,sizeof(enfs_fcb_delegation));
 		memset(message,0,M_SIZE);
@@ -413,7 +418,7 @@ struct proc_remote{
 		return 0;
 	}
 	
-	int inline encodeDelegationRes(enfs_fcb_delegation *t)
+	int encodeDelegationRes(enfs_fcb_delegation *t)
 	{
 		memset(message,0,M_SIZE);
 		sprintf(message,"%u ",12);
@@ -422,7 +427,7 @@ struct proc_remote{
 		return 0;
 	}
 
-	int inline decodeDelegationCmd(int *t)
+	int decodeDelegationCmd(int *t)
 	{
 		int hf = 0;
 		sscanf(message, "%d %d", &op_type,&hf);
@@ -432,7 +437,7 @@ struct proc_remote{
 		return 0;
 	}
 	
-	int inline encodDelegationCmd(GET_DELEGATION_CMD *t)
+	int encodDelegationCmd(GET_DELEGATION_CMD *t)
 	{
 		memset(message,0,M_SIZE);
 		sprintf(message,"%d %d", 11, 
@@ -441,7 +446,7 @@ struct proc_remote{
 		return 0;
 	}
 
-	int inline sendDelegationCmd(GET_DELEGATION_CMD t)
+	int sendDelegationCmd(GET_DELEGATION_CMD t)
 	{
 		encodDelegationCmd(&t);
 		send();
@@ -451,7 +456,7 @@ struct proc_remote{
 		return 0;
 	}
 
-	int inline ioctrl_get_deleg(int fd, enfs_fcb_delegation *deleg)
+	int ioctrl_get_deleg(int fd, enfs_fcb_delegation *deleg)
 	{
 		int ret = 0, ret2 = 0;
 		int cdev_fd = 0;
@@ -498,7 +503,7 @@ struct proc_remote{
 		return ret;
 	}
 
-	int inline doDelegationCmd()
+	int doDelegationCmd()
 	{
 		GET_DELEGATION_CMD t;
 		decodeDelegationCmd(&t.hFile);
@@ -528,100 +533,31 @@ struct proc_remote{
 		return 0;
 	}
 
-	int inline process()
-	{
-		decodeType();
-		switch (op_type){
-		case 1:
-			decodeOpen(&g_opena);
-			g_openr.hFile = open(g_opena.lpFileName, g_opena.dwDesiredAccess,0755);
-			if (g_openr.hFile < 0) {
-				Log4(APP_LOG_DEBUG, "open enfs2 file errorCode fileName==%s,%x,errno=%s",
-					g_opena.lpFileName,g_opena.dwDesiredAccess,strerror(errno));
-			}
-			g_openr.hFile2 = open(g_opena.lpFileName2, g_opena.dwDesiredAccess,0755);
-			if (g_openr.hFile2 < 0){
-				Log4(APP_LOG_DEBUG, "open nfs file errorCode fileName2==%s,%x,errno=%s",
-					g_opena.lpFileName2,g_opena.dwDesiredAccess,strerror(errno));
-			}
-			encodeOpenR(&g_openr);
-			break;
-				
-		case 2:
-			decodeOpenR(&g_openr);
-			break;
-
-		case 3://Ëø²Ù×÷£¬¼ÓËø¡£
-			decodeLock(&g_locka);
-			g_lockr.res = enfs_filelock(g_locka.hFile, g_locka);
-			if (g_lockr.res < 0){
-				Log6(APP_LOG_DEBUG, "lockFile enfs2 errorCode==%d,fileHandle==%x,[%llu,%llu],errno=%s",
-					g_lockr.res,g_locka.hFile,g_locka.dwFileStart,g_locka.dwFileStart+g_locka.dwFileLen,strerror(errno));
-			}
-			g_lockr.res2 = enfs_filelock(g_locka.hFile2, g_locka);
-			if (g_lockr.res < 0){
-				Log6(APP_LOG_DEBUG, "lockFile nfs errorCode==%d,fileHandle==%x,[%llu,%llu],errno=%s",
-					g_lockr.res,g_locka.hFile2,g_locka.dwFileStart,g_locka.dwFileStart+g_locka.dwFileLen,strerror(errno));
-			}
-			encodeLockR(&g_lockr);
-			break;
-				
-		case 4:
-			decodeLockR(&g_lockr);
-			break;
-				
-		case 5:
-			decodeUnLock(&g_unlocka);
-			g_unlockr.res = enfs_fileunLock(g_unlocka.hFile, g_unlocka);
-			if (g_unlockr.res < 0){
-				Log6(APP_LOG_DEBUG, "UnlockFile enfs2 errorCode==%d,fileHandle==%x,[%lld,%lld],errno=%s",
-					g_unlockr.res,g_unlocka.hFile,g_unlocka.dwFileStart,g_unlocka.dwFileStart+g_unlocka.dwFileLen,strerror(errno));
-			}
-			g_unlockr.res2 = enfs_fileunLock(g_unlocka.hFile2, g_unlocka);
-			if (g_unlockr.res2 < 0){
-				Log6(APP_LOG_DEBUG, "UnlockFile nfs errorCode==%d,fileHandle==%x,[%lld,%lld],errno=%s",
-					g_unlockr.res,g_unlocka.hFile2,g_unlocka.dwFileStart,g_unlocka.dwFileStart+g_unlocka.dwFileLen,strerror(errno));
-			}
-			encodeUnLockR(&g_unlockr);
-			break;
-				
-		case 6:
-			decodeUnLockR(&g_unlockr);
-			break;
-				
-		case 7:
-			decodeClose(&g_closea);
-			g_closer.res = close(g_closea.hFile);
-			g_closer.res2 = close(g_closea.hFile2);
-			encodeCloseR(&g_closer);
-			break;
-				
-		case 8:
-			decodeCloseR(&g_closer);
-			break;
-			
-		case 9://do file io test for  byte range
-			break;
-		case 10:
-			break;
-		case 11://server process delegaton cmd
-			memset(&g_DelegationInfor,0,sizeof(g_DelegationInfor));
-			doDelegationCmd();
-			break;
-				
-		case 12://client recv delegation infor
-			decodeDelegationRes(&g_DelegationInfor);
-			break;
-		default:
-			break;
-		}
-		return 0;
+	int decodeShellRes(int *res){
+	    int hf = 0;
+	    sscanf(message, "%d %d", &op_type,&hf);
+	    memset(message,0, M_SIZE);
+	    *res=hf;
+	    return 0;
 	}
-
-	int inline listen(int con_type=0, int port=0)
+	int encodeShellRes(int g_shell_res)
+	{
+		memset(message,0,M_SIZE);
+		sprintf(message,"%u %d",14, g_shell_res);
+		return 0;	
+	}
+        int decodeShell(int *t)
+        {
+		int hf = 0;
+		sscanf(message, "%d %d", &op_type,&hf);
+		memset(message,0, M_SIZE);
+		*t=hf;
+		return 0;
+         }
+	int listen(int con_type, int port, void* context)
 	{
 		if (con_type==0){
-			g_socket = zmq_socket(g_context,ZMQ_REP);//ZMQ_REQ ZMQ_REP  //ZMQ_PUB ZMQ_SUB
+			g_socket = zmq_socket(context,ZMQ_REP);//ZMQ_REQ ZMQ_REP  //ZMQ_PUB ZMQ_SUB
 			sprintf(ip_port,"tcp://*:%d",port);// accept connections on a socket//"tcp://*:5555"
 			int res = zmq_bind(g_socket, ip_port);
 			return res;
@@ -630,20 +566,19 @@ struct proc_remote{
 		return 0;
 	}
 
-	int inline connect(int  con_type=0, const char *addr=0)
+	int connect(int con_type, const char *addr, void* context)
 	{
-		printf("connect\n");
 		if (con_type==0){
-			printf("connect         0000\n");
-			g_socket = zmq_socket(g_context,ZMQ_REQ);
+			g_socket = zmq_socket(context,ZMQ_REQ);
 			sprintf(ip_port,"tcp://%s",addr);
-			zmq_connect(g_socket, ip_port);
+			int ret = zmq_connect(g_socket, ip_port);
+			printf("connect: %s = %d\n",ip_port,ret);
 		}
 
 		return 0;
 	}
 
-	int inline recv(int con_type=0)
+	int recv(int con_type=0)
 	{
 		if (con_type==0){
 			zmq_msg_t recv_msg;
@@ -657,7 +592,7 @@ struct proc_remote{
 		return 0;
 	}
 
-	int inline send(int con_type=0)
+	int send(int con_type=0)
 	{
 		if (con_type==0){
 			zmq_msg_t send_msg;
@@ -670,7 +605,7 @@ struct proc_remote{
 		return 0;
 	}
 
-	int inline zclose(int con_type=0)
+	int zclose(int con_type=0)
 	{
 		if (con_type==0){
 			zmq_close(g_socket);
@@ -678,7 +613,7 @@ struct proc_remote{
 		return 0;
 	}
 	
-	int inline checkopen()
+	int checkopen()
 	{
 		int ret = 0;
 		
@@ -701,7 +636,7 @@ struct proc_remote{
 		return ret;
 	}
 
-	int inline checklock()
+	int checklock()
 	{
 		int ret = 0;
 		
@@ -724,7 +659,7 @@ struct proc_remote{
 		return ret;
 	}
 
-	int inline checkunlock()
+	int checkunlock()
 	{
 		int ret = 0;
 		if(g_unlockr.res >= 0 && g_unlockr.res2 >= 0) {
@@ -746,4 +681,4 @@ struct proc_remote{
 		return ret;
 	}
 };
-
+#endif

@@ -202,7 +202,7 @@ void StrTime(char *pTime)
 	strftime(pTime, 32, "%Y/%m/%d %X",localtime(&t) ); 
 }
 
-int open_case1(struct proc_remote pr1)
+int open_case1(class proc_remote pr1)
 {
 	unsigned int i1=0;
 	struct openargs opena;
@@ -214,7 +214,7 @@ int open_case1(struct proc_remote pr1)
 		if ((pr1.g_openr.hFile < 0 || pr1.g_openr.hFile2 < 0) || 
 			(pr1.g_openr.hFile < 0 || pr1.g_openr.hFile2 > 0) ||
 			(pr1.g_openr.hFile > 0 || pr1.g_openr.hFile2 < 0)) {
-			Log3(APP_LOG_DEBUG, "open once on %s fail,Desired-Share:[%d]", pr1.ip_port, dwDesired[i1]);
+			Log2(APP_LOG_DEBUG, "open once on fail,Desired-Share:[%d]", dwDesired[i1]);
 			continue;
 		}
 		else {
@@ -225,7 +225,7 @@ int open_case1(struct proc_remote pr1)
 	return 0;
 }
 
-int open_case2(struct proc_remote pr1,struct proc_remote pr2)
+int open_case2(class proc_remote pr1,class proc_remote pr2)
 {
 	unsigned int i1=0,i2=0;
 	struct openargs opena;
@@ -247,7 +247,7 @@ int open_case2(struct proc_remote pr1,struct proc_remote pr2)
 
 
 // process1:	locka unlocka
-int lock_case1(struct proc_remote pr1, struct openargs opena, struct lockiov* mliov, unsigned int len)
+int lock_case1(class proc_remote pr1, struct openargs opena, struct lockiov* mliov, unsigned int len)
 {
 	int ret=0;
 	unsigned int i1,k1;
@@ -257,7 +257,7 @@ int lock_case1(struct proc_remote pr1, struct openargs opena, struct lockiov* ml
 		pr1.openfile(&opena);
 //		log_lock_1(mliov,i1,k1);
 		if (pr1.g_openr.hFile < 0) {
-			Log3(APP_LOG_DEBUG, "%s open once failed,%x",pr1.ip_port, opena.dwDesiredAccess);
+			Log2(APP_LOG_DEBUG, "open once failed,%x", opena.dwDesiredAccess);
 		}
 		struct lockargs locka = lock_construct(pr1, k1, mliov, i1);
 		pr1.lock(&locka);
@@ -292,7 +292,7 @@ int lock_case1(struct proc_remote pr1, struct openargs opena, struct lockiov* ml
 }
 
 // process1: locka lockb
-int lock_case2(struct proc_remote pr1, struct openargs opena, struct lockiov* mliov, unsigned int len)
+int lock_case2(class proc_remote pr1, struct openargs opena, struct lockiov* mliov, unsigned int len)
 {
 	static int count = 0;
 	unsigned int k1,k2,i1,i2;
@@ -373,7 +373,7 @@ int lock_case2(struct proc_remote pr1, struct openargs opena, struct lockiov* ml
 //process1:	locka
 //process2:       lockb     
 
-int lock_case3(struct proc_remote pr1, struct proc_remote pr2, struct openargs opena, struct lockiov* mliov, unsigned int len)
+int lock_case3(class proc_remote pr1, class proc_remote pr2, struct openargs opena, struct lockiov* mliov, unsigned int len)
 { 
 	int pr1ret=0,pr2ret=0;
 	unsigned int k1,k2,i1,i2;
@@ -455,7 +455,7 @@ int lock_case3(struct proc_remote pr1, struct proc_remote pr2, struct openargs o
 //2 process
 //process1:	locka lockb
 //process2:				lockc      
-int lock_case4(struct proc_remote pr1, struct proc_remote pr2, struct openargs opena, struct lockiov* mliov, unsigned int len)
+int lock_case4(class proc_remote pr1, class proc_remote pr2, struct openargs opena, struct lockiov* mliov, unsigned int len)
 {
 	unsigned int k1,k2,k3,i1,i2,i3;
 	
@@ -483,8 +483,8 @@ int lock_case4(struct proc_remote pr1, struct proc_remote pr2, struct openargs o
 }
 
 //4 process, 1 range
-int lock_case5(struct proc_remote pr1,struct proc_remote pr2,
-struct proc_remote pr3,struct proc_remote pr4,
+int lock_case5(class proc_remote pr1,class proc_remote pr2,
+class proc_remote pr3,class proc_remote pr4,
 struct openargs opena,struct lockiov* mliov, unsigned int len)
 {
 	unsigned int k1,k2,k3,k4,i1,i2,i3,i4;
@@ -522,7 +522,7 @@ struct openargs opena,struct lockiov* mliov, unsigned int len)
 //2 process
 //process1:	locka lockb unlocka
 //process2:						lockc      
-int lock_case6(struct proc_remote pr1, struct proc_remote pr2, struct openargs opena, struct lockiov* mliov, unsigned int len)
+int lock_case6(class proc_remote pr1, class proc_remote pr2, struct openargs opena, struct lockiov* mliov, unsigned int len)
 {
 	unsigned int k1,k2,k3,i1,i2,i3;
 	
@@ -552,7 +552,7 @@ int lock_case6(struct proc_remote pr1, struct proc_remote pr2, struct openargs o
 //2 process
 //process1:	lock a       unlock a   lock c
 //process2:        lockb
-int lock_case7(struct proc_remote pr1, struct proc_remote pr2, struct openargs opena, struct lockiov* mliov, unsigned int len)
+int lock_case7(class proc_remote pr1, class proc_remote pr2, struct openargs opena, struct lockiov* mliov, unsigned int len)
 {
 	unsigned int k1,k2,k3,i1,i2,i3;
 	
@@ -582,7 +582,7 @@ int lock_case7(struct proc_remote pr1, struct proc_remote pr2, struct openargs o
 //2 process
 //process1:	locka lockb unlockb
 //process2:						lockc      
-int lock_case8(struct proc_remote pr1, struct proc_remote pr2, struct openargs opena, struct lockiov* mliov, unsigned int len)
+int lock_case8(class proc_remote pr1, class proc_remote pr2, struct openargs opena, struct lockiov* mliov, unsigned int len)
 {
 	unsigned int k1,k2,k3,i1,i2,i3;
 	
@@ -612,7 +612,7 @@ int lock_case8(struct proc_remote pr1, struct proc_remote pr2, struct openargs o
 //2 process
 //process1:	lock a       
 //process2:        lockb lock c
-int lock_case_1_2(struct proc_remote pr1, struct proc_remote pr2, struct openargs opena, struct lockiov* mliov, unsigned int len)
+int lock_case_1_2(class proc_remote pr1, class proc_remote pr2, struct openargs opena, struct lockiov* mliov, unsigned int len)
 {
 	unsigned int k1,k2,k3,i1,i2,i3;
 	
@@ -656,9 +656,9 @@ void logClose()
 	}
 }
 
-void delegationTestCase1(struct proc_remote *pr1);
+void delegationTestCase1(class proc_remote *pr1);
 //multiple procs or multiple clients
-void delegationTestCase2_3(int testCase,struct proc_remote *pr1,struct proc_remote *pr2);
+void delegationTestCase2_3(int testCase,class proc_remote *pr1,class proc_remote *pr2);
 
 //#define ULONAG unsigned long
 int main(int argc, char* argv[])
@@ -708,22 +708,27 @@ int main(int argc, char* argv[])
 			exit(-1);
 		}
 	}
+	class proc_remote pr1;
+	class proc_remote pr2;
+	class proc_remote pr3;
+
+	logInit(pOutFile);
+	void * g_context = zmq_init(1);    //指定zmq 处理I/0事件的thread pool 为1
+
+	pr1.connect(conn_type, server[0], g_context);
+	//shell_case(pr1, opena, g_liov_1,sizeof(g_liov_1)/sizeof(lockiov));
+
 	if ((optind < argc) || (server_index < 2)) {
-		printf ("not enough args");
+		printf ("not enough args\n");
 		exit(-1);
 	}
 	
-	logInit(pOutFile);
-	g_context = zmq_init(1);    //指定zmq 处理I/0事件的thread pool 为1
-
-	struct proc_remote pr1={};
-	struct proc_remote pr2={};
-	struct proc_remote pr3={};
-//	struct proc_remote pr4={};
 	
-	pr1.connect(conn_type,server[0]);
-	pr2.connect(conn_type,server[1]);
-	pr3.connect(conn_type,server[2]);
+	//	class proc_remote pr4={};
+	
+	pr1.connect(conn_type,server[0], g_context);
+	pr2.connect(conn_type,server[1], g_context);
+	pr3.connect(conn_type,server[2], g_context);
 //	pr4.connect(conn_type,server[3]);
 #if 0
 	if (case_type & 1) {
@@ -1000,7 +1005,7 @@ bool processOnceDelegationGetRes(enfs_fcb_delegation *buff1,enfs_fcb_delegation 
 	return isTestOK;
 }
 
-BOOL File_Open_Close(struct openres *openfileR,struct proc_remote *pr,BOOL BeOpen,int rw)
+BOOL File_Open_Close(struct openres *openfileR,class proc_remote *pr,BOOL BeOpen,int rw)
 {
 	BOOL ret=TRUE;
 	struct openargs opena={
@@ -1026,7 +1031,7 @@ BOOL File_Open_Close(struct openres *openfileR,struct proc_remote *pr,BOOL BeOpe
 	return ret;
 }
 
-BOOL openFileStep(BOOL firstOpen,int optionIndex,struct proc_remote *pr,struct openres *openfileR)
+BOOL openFileStep(BOOL firstOpen,int optionIndex,class proc_remote *pr,struct openres *openfileR)
 {
 	printf("start test delegation  openFileStep\n");
 	if (firstOpen)
@@ -1035,12 +1040,12 @@ BOOL openFileStep(BOOL firstOpen,int optionIndex,struct proc_remote *pr,struct o
 		return File_Open_Close(openfileR,pr,TRUE,g_delegation_testoption[optionIndex].rw2);
 }
 
-void closeFile(struct proc_remote *pr,struct openres *openfileR)
+void closeFile(class proc_remote *pr,struct openres *openfileR)
 {
 	File_Open_Close(openfileR,pr,FALSE,0);
 }
 
-void closeFileStep(int optionIndex,struct proc_remote *pr,struct openres *openfileR)
+void closeFileStep(int optionIndex,class proc_remote *pr,struct openres *openfileR)
 {
 	printf("start test delegation closeFileStep \n");
 	if (g_delegation_testoption[optionIndex].close) {
@@ -1056,7 +1061,7 @@ void delaytimeStep(int optionIndex)
 	}
 }
 
-bool  getDelegationStep(struct proc_remote *pr,GET_DELEGATION_CMD cmd,enfs_fcb_delegation *buffer)
+bool  getDelegationStep(class proc_remote *pr,GET_DELEGATION_CMD cmd,enfs_fcb_delegation *buffer)
 {
 	pr->sendDelegationCmd(cmd);
 //	sleep(2);
@@ -1066,7 +1071,7 @@ bool  getDelegationStep(struct proc_remote *pr,GET_DELEGATION_CMD cmd,enfs_fcb_d
 	return TRUE;
 }
 
-void testDeleagtionForOptions(int testCase,struct proc_remote *pr1,struct proc_remote *pr2)
+void testDeleagtionForOptions(int testCase,class proc_remote *pr1,class proc_remote *pr2)
 {
 	struct openres openfiler1,openfiler2;
 	enfs_fcb_delegation deleinfor1,deleinfor2;
@@ -1142,12 +1147,12 @@ void testDeleagtionForOptions(int testCase,struct proc_remote *pr1,struct proc_r
 }
 
 //one proc
-void delegationTestCase1(struct proc_remote *pr1)
+void delegationTestCase1(class proc_remote *pr1)
 {
 	testDeleagtionForOptions(1,pr1,NULL);
 }
 //multiple procs or multiple clients
-void delegationTestCase2_3(int testCase,struct proc_remote *pr1,struct proc_remote *pr2)
+void delegationTestCase2_3(int testCase,class proc_remote *pr1,class proc_remote *pr2)
 {
 	testDeleagtionForOptions(testCase,pr1,pr2);
 }

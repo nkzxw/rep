@@ -106,6 +106,7 @@ static void log_line(const int priority, const char *DebugBuffer)
 	}
 	else if(DEBUGLOG_STDOUT_FILE == LogMsgType){
 		fprintf(filefd, "%s\n", DebugBuffer);
+		fflush(filefd);
 	}
 	else if(DEBUGLOG_STDOUT_DEBUG == LogMsgType || DEBUGLOG_STDOUT_COLOR_DEBUG == LogMsgType){
 		if (LogDoColor){

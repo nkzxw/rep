@@ -35,11 +35,6 @@ typedef unsigned long           DWORD;
 typedef unsigned long long      UINT64;
 
 typedef void                    VOID;
-typedef bool                    b4;
-typedef float                   f8;
-typedef double                  d8;
-typedef long double             ld8;
-
 typedef int                     BOOL;
 typedef int                   	HANDLE;
 typedef void*					PVOID;

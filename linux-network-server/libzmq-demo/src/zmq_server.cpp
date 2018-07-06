@@ -1,5 +1,5 @@
 #include "common.h"
-#include "debuglog.h"
+//#include "debuglog.h"
 
 FILE *g_Handle=NULL;
 
@@ -60,15 +60,36 @@ int main(int argc, char* argv[])
 	}
 	
 	logInit(logename);
-	system("pgrep enfsd > /tmp/aaaaaa");	
-	g_context = zmq_init(1);
+	//int enfsd = system("pgrep enfsd");	
+	//printf("enfsd %d\n",enfsd);
+	{
+	    //char *cmd_get_bwfs_status = "ps aux|grep enfsd |wc -l> 1.txt";
+	    //char *cmd_get_bwfs_status = "ps aux|grep enfsd > 1.txt";
+	    char *cmd_get_bwfs_status = (char*)"pstree |grep enfsd|wc -l > 1.txt";
+	    char enfsd_thread[8]={};
+	    int err = 0;//system(cmd_get_bwfs_status);		
+	    if(err < 0){
+		err = -1;	
+	    }
+	    int fd_ps = open("1.txt",O_RDONLY);	
+	    if(fd_ps < 0){
+		err = -2;
+	    }
+	    int r_size = read(fd_ps,enfsd_thread,7);	
+	    if(r_size < 0){
+		err = -3;
+	    }
+	    int ps_cnt = atoi(enfsd_thread);
+	    printf("enfsd count =%d\n",ps_cnt);
+	}
+	void *g_context = zmq_init(1);
 	int conn_type = 0;
-	struct proc_remote pr={};
-	if(pr.listen(conn_type, port)) {
+	class proc_remote pr;
+	if(pr.listen(conn_type, port,g_context)) {
 		cout<<"listen port "<<port<<" fail"<<endl;
 		return 0;
 	}
-	cout<<"listen port "<<port<<" success"<<endl;
+	printf("listen port %d success\n",port);
 	while(1) {
 		pr.recv(conn_type);
 		pr.process();
