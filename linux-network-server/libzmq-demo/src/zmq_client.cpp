@@ -1,6 +1,4 @@
 #include "common.h"
-#include "debuglog.h"
-#include <getopt.h>
 
 typedef struct _test_option{
 	INT rw1;
@@ -660,9 +658,36 @@ void delegationTestCase1(class proc_remote *pr1);
 //multiple procs or multiple clients
 void delegationTestCase2_3(int testCase,class proc_remote *pr1,class proc_remote *pr2);
 
+void ha_case1(class proc_remote *pr1){
+    int	res = pr1->DoShell(SERVICE_CHECK);
+    printf("service bwfs status = %s\n", (pr1->g_shell_res==1)?"ok":"fail");
+    res = pr1->DoShell(STOP_SERVICE);
+    printf("service bwfs stop = %s\n", (pr1->g_shell_res==1)?"ok":"fail");
+    res = pr1->DoShell(START_SERVICE);
+    printf("service bwfs start = %s\n", (pr1->g_shell_res==1)?"ok":"fail");
+    res = pr1->DoShell(BLOCK_CLIENT);
+    printf("block client = %s\n", (pr1->g_shell_res==1)?"ok":"fail");
+    res = pr1->DoShell(STOP_BLOCK_CLIENT);
+    printf("not block client = %s\n", (pr1->g_shell_res==1)?"ok":"fail");
+}
+
+static const char *progname = NULL;
+
+void usage(void)
+{
+    fprintf(stderr, "usage: %s -d server -f file -c compare_file -o output -t case_type\n"
+	    "server: ip:port\n"
+	    "file: test file path\n"
+	    "compare_file: file path to compare\n"
+	    "output: log file path\n"
+	    "case_type: test case type\n", 
+	    progname);
+    exit(1);
+}
 //#define ULONAG unsigned long
 int main(int argc, char* argv[])
 {
+    	progname = argv[0];
 	int c;
 	int server_index = 0;
 	int case_type = 0;
@@ -705,30 +730,29 @@ int main(int argc, char* argv[])
 			break;
 		default:
 			printf ("non-option argv: %c,%s",c,optarg);
-			exit(-1);
+			usage();
 		}
 	}
+	logInit(pOutFile);
+
 	class proc_remote pr1;
 	class proc_remote pr2;
 	class proc_remote pr3;
+	//class proc_remote pr4={};
+	
+	void * g_context = zmq_init(1); 
+	int res = pr1.connect(conn_type, server[0], g_context);
 
-	logInit(pOutFile);
-	void * g_context = zmq_init(1);    //指定zmq 处理I/0事件的thread pool 为1
-
-	pr1.connect(conn_type, server[0], g_context);
-	//shell_case(pr1, opena, g_liov_1,sizeof(g_liov_1)/sizeof(lockiov));
+	ha_case1(&pr1);
 
 	if ((optind < argc) || (server_index < 2)) {
 		printf ("not enough args\n");
-		exit(-1);
+		usage();
 	}
-	
-	
-	//	class proc_remote pr4={};
-	
 	pr1.connect(conn_type,server[0], g_context);
 	pr2.connect(conn_type,server[1], g_context);
 	pr3.connect(conn_type,server[2], g_context);
+
 //	pr4.connect(conn_type,server[3]);
 #if 0
 	if (case_type & 1) {

@@ -1,5 +1,12 @@
 #include "common.h"
 
+int doShellCmd(bwfs_cmd cmd);
+
+int StopBlockClient();
+int StartBlockClient();
+int GetEnfsdStatus();
+int StopBwfsService();
+int StartBwfsService();
 int proc_remote::process()
 {
     decodeType();
@@ -85,12 +92,8 @@ int proc_remote::process()
 	    decodeDelegationRes(&g_DelegationInfor);
 	    break;
 	case 13:
-	    //shell commond.
-	    //1:check bwfs service. 
-	    //2:stop bwfs service.
-	    //3:block client ip network.
 	    decodeShell(&g_shell_cmd);
-	    g_shell_res = doShellCmd(g_shell_cmd);
+	    g_shell_res = ::doShellCmd(g_shell_cmd);
 	    encodeShellRes(g_shell_res);
 	    break;
 
@@ -103,7 +106,78 @@ int proc_remote::process()
     }
     return 0;
 }
-int proc_remote::doShellCmd(int cmd){
-    return 0;
-}
 
+//shell commond.
+//1:check bwfs service. 
+//2:stop bwfs service.
+//3:block client ip network.
+//4:stop block client ip network.
+int doShellCmd(bwfs_cmd cmd){
+    if(cmd == SERVICE_CHECK){
+	return GetEnfsdStatus();
+    }
+    if(cmd == START_SERVICE){
+	return StartBwfsService();
+    }
+    if(cmd == STOP_SERVICE){
+	return StopBwfsService();
+    }
+    if(cmd == BLOCK_CLIENT){
+	return StartBlockClient();
+    }
+    if(cmd == STOP_BLOCK_CLIENT){
+	return StopBlockClient();
+    }
+    return -1;
+}
+//return 1:not blocked
+int StopBlockClient(){
+    char *cmd = (char*)"service iptables stop";
+    int ret = system(cmd);		
+    //printf("Stop block ret =%d\n",ret);
+    return ret==0;
+}
+//return 1:blocked
+int StartBlockClient(){
+    char *cmd = (char*)"service iptables start";
+    int ret = system(cmd);		
+    //printf("Start block ret =%d\n",ret);
+    return ret==0;
+}
+//reurn 1:started
+int StartBwfsService(){
+    char *cmd = (char*)"service bwfs start";
+    system(cmd);		
+    int ret = GetEnfsdStatus();		
+    //printf("get enfs status ret =%d\n",ret);
+    return ret==1;
+}
+//reurn 1:stopped
+int StopBwfsService(){
+    char *cmd = (char*)"service bwfs stop";
+    system(cmd);		
+    int ret = GetEnfsdStatus();		
+    return ret==0;
+}
+//return 1:enfsd running
+int GetEnfsdStatus(){
+    //char *cmd = "ps aux|grep enfsd |wc -l> 1.txt";
+    //char *cmd = "ps aux|grep enfsd > 1.txt";
+    char *cmd = (char*)"pstree |grep enfsd|wc -l > 1.txt";
+    int err = system(cmd);		
+    if(err < 0){
+	err = -1;	
+    }
+    int fd_ps = open("1.txt",O_RDONLY);	
+    if(fd_ps < 0){
+	err = -2;
+    }
+    char enfsd_thread[8]={};
+    int r_size = read(fd_ps,enfsd_thread,7);	
+    if(r_size < 0){
+	err = -3;
+    }
+    int ps_cnt = atoi(enfsd_thread);
+    //printf("enfsd count =%d\n",ps_cnt);
+    return ps_cnt == 1;
+}
