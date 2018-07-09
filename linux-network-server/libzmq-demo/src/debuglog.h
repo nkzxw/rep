@@ -36,23 +36,16 @@ enum {
 #define __attribute__(x) /*nothing*/
 #endif
 
-#define Log0(priority) log_msg(priority, "%s:%d:%s()", __FILE__, __LINE__, __FUNCTION__)
-#define Log1(priority, fmt) log_msg(priority, "%s:%d:%s() " fmt, __FILE__, __LINE__, __FUNCTION__)
-#define Log2(priority, fmt, data) log_msg(priority, "%s:%d:%s() " fmt, __FILE__, __LINE__, __FUNCTION__, data)
-#define Log3(priority, fmt, data1, data2) log_msg(priority, "%s:%d:%s() " fmt, __FILE__, __LINE__, __FUNCTION__, data1, data2)
-#define Log4(priority, fmt, data1, data2, data3) log_msg(priority, "%s:%d:%s() " fmt, __FILE__, __LINE__, __FUNCTION__, data1, data2, data3)
-#define Log5(priority, fmt, data1, data2, data3, data4) log_msg(priority, "%s:%d:%s() " fmt, __FILE__, __LINE__, __FUNCTION__, data1, data2, data3, data4)
-#define Log6(priority, fmt, data1, data2, data3, data4, data5) log_msg(priority, "%s:%d:%s() " fmt, __FILE__, __LINE__, __FUNCTION__, data1, data2, data3, data4, data5)
-#define Log7(priority, fmt, data1, data2, data3, data4, data5, data6) log_msg(priority, "%s:%d:%s() " fmt, __FILE__, __LINE__, __FUNCTION__, data1, data2, data3, data4, data5, data6)
-#define Log8(priority, fmt, data1, data2, data3, data4, data5, data6, data7) log_msg(priority, "%s:%d:%s() " fmt, __FILE__, __LINE__, __FUNCTION__, data1, data2, data3, data4, data5, data6, data7)
-#define Log9(priority, fmt, data1, data2, data3, data4, data5, data6, data7, data8) log_msg(priority, "%s:%d:%s() " fmt, __FILE__, __LINE__, __FUNCTION__, data1, data2, data3, data4, data5, data6, data7, data8)
+//#define bw_log(priority, fmt, ...) log_msg(priority, fmt, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
+#define bw_log(priority, fmt, args ...) log_msg(priority, (fmt), __FILE__, __LINE__, ##args)
 
 
-LOG_API void log_msg(const int priority, const char *fmt, ...);
+//LOG_API void log_msg(const int priority, const char *fmt, ...);
 //	__attribute__((format(printf, 2, 3)));
 
-LOG_API void debug_msg(const int priority, const char *fmt, ...);
+//LOG_API void debug_msg(const int priority, const char *fmt, ...);
 
+void log_msg(const int priority, const char *fmt, const char* SavedFileName, int SavedLineNumber, ...);
 LOG_API	int set_fd(FILE *fd);
 LOG_API char getDebugLogType();
 LOG_API void DebugLogSetLogType(const int);

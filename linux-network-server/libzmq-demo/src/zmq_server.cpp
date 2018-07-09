@@ -11,7 +11,7 @@ void logInit(char *pOutFile)
     DebugLogSetLogType(DEBUGLOG_STDOUT_FILE);
     g_Handle = fopen(LogFile, "w+");
     set_fd(g_Handle);
-    Log1(APP_LOG_DEBUG, "server log start");
+    bw_log(APP_LOG_DEBUG, "server log start");
 }
 
 void logClose()
@@ -28,8 +28,8 @@ int main(int argc, char* argv[])
     int c;
     char logename[64]="\0";
 
-    int pid=getpid();
-    sprintf(logename,"/opt/server_%d", pid);
+    //int pid=getpid();
+    sprintf(logename,"/opt/server_%d", port);
 
     while (1) {
 	struct option long_options[] = {

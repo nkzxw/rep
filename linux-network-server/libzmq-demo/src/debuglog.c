@@ -42,6 +42,16 @@ static char LogLevel = APP_LOG_ERROR;
 static signed char LogDoColor = 0;	/**< no color by default */
 
 static FILE *filefd=0;
+static const char* desc[] = {
+	"NOTICE",		// critical conditions
+	"INFO",			// informational
+	"DEBUG",			// debug-level messages
+	"WARNING",		// warning conditions
+	"ERROR",       	// error conditions
+	"CRITICAL",		// critical messages
+};
+
+
 int set_fd(FILE *fd)
 {
 	if(fd != NULL) {
@@ -53,7 +63,8 @@ int set_fd(FILE *fd)
 }
 
 static void log_line(const int priority, const char *DebugBuffer);
-void log_msg(const int priority, const char *fmt, ...)
+
+void log_msg(const int priority, const char *fmt, const char* FileName, int LineNumber, ...)
 {
 	char DebugBuffer[DEBUG_BUF_SIZE]="\0";
 	va_list argptr;
@@ -61,12 +72,19 @@ void log_msg(const int priority, const char *fmt, ...)
 	if ((priority < LogLevel) /* log priority lower than threshold? */
 		|| (DEBUGLOG_NO_DEBUG == LogMsgType))
 		return;
-
-	va_start(argptr, fmt);
-	vsnprintf(DebugBuffer, sizeof DebugBuffer, fmt, argptr);
+	time_t timep;
+	time(&timep);
+	char* t = ctime(&timep);
+	t[(int)strlen(t)-1] = '\0';
+	va_start(argptr, LineNumber);
+	fprintf(filefd,"%s %s %s:%u ", t, desc[priority], FileName, LineNumber);
+	vfprintf(filefd, fmt, argptr);
+	//sprintf(filefd,"%s %s:%u:%s ", ctime(&timep), FileName, LineNumber, FuncName);
+	//vsnprintf(DebugBuffer + ret, sizeof DebugBuffer, fmt, argptr);
 	va_end(argptr);
-
-	log_line(priority, DebugBuffer);
+	fprintf(filefd, "\n");  
+	fflush(filefd);
+	//log_line(priority, DebugBuffer);
 } /* log_msg */
 
 static void log_line(const int priority, const char *DebugBuffer)
@@ -106,7 +124,6 @@ static void log_line(const int priority, const char *DebugBuffer)
 	}
 	else if(DEBUGLOG_STDOUT_FILE == LogMsgType){
 		fprintf(filefd, "%s\n", DebugBuffer);
-		fflush(filefd);
 	}
 	else if(DEBUGLOG_STDOUT_DEBUG == LogMsgType || DEBUGLOG_STDOUT_COLOR_DEBUG == LogMsgType){
 		if (LogDoColor){
@@ -161,7 +178,7 @@ void DebugLogSetLogType(const int dbgtype)
 			LogMsgType = dbgtype;
 			break;
 		default:
-			Log2(APP_LOG_ERROR, "unknown log type (%d), using stdout",dbgtype);
+			bw_log(APP_LOG_ERROR, "unknown log type (%d), using stdout",dbgtype);
 			LogMsgType = DEBUGLOG_STDOUT_DEBUG;
 			break;
 	}
@@ -194,26 +211,26 @@ void DebugLogSetLevel(const int level)
 	LogLevel = level;
 	switch (level){
 		case APP_LOG_NOTICE:
-//			Log1(APP_LOG_NOTICE, "debug level=notice");
+//			bw_log(APP_LOG_NOTICE, "debug level=notice");
 			break;
 		case APP_LOG_INFO:
-//			Log1(APP_LOG_INFO, "debug level=info");
+//			bw_log(APP_LOG_INFO, "debug level=info");
 			break;
 		case APP_LOG_DEBUG:
-//			Log1(APP_LOG_DEBUG, "debug level=debug");
+//			bw_log(APP_LOG_DEBUG, "debug level=debug");
 			break;
 		case APP_LOG_WARNING:
-//			Log1(APP_LOG_WARNING, "debug level=warning");
+//			bw_log(APP_LOG_WARNING, "debug level=warning");
 			break;
 		case APP_LOG_ERROR:
-//			Log1(APP_LOG_ERROR, "debug level=error");
+//			bw_log(APP_LOG_ERROR, "debug level=error");
 			break;
 		case APP_LOG_CRITICAL:
-//			Log1(APP_LOG_CRITICAL, "debug level=critical");
+//			bw_log(APP_LOG_CRITICAL, "debug level=critical");
 			break;
 		default:
 			LogLevel = APP_LOG_ERROR;
-//			Log2(APP_LOG_ERROR, "unknown level (%d), using level=info",level);
+//			bw_log(APP_LOG_ERROR, "unknown level (%d), using level=info",level);
 			break;
 	}
 }
@@ -245,13 +262,13 @@ void debug_msg(const int priority, const char *fmt, ...)
 	va_end(argptr);
 
 	if (DEBUGLOG_SYSLOG_DEBUG == LogMsgType){
-		syslog(priority, "%s", DebugBuffer);
+	    syslog(priority, "%s", DebugBuffer);
 	}
 	else if(DEBUGLOG_STDOUT_FILE == LogMsgType && filefd != NULL){
-				fprintf(filefd, "%s\n", DebugBuffer);
+	    fprintf(filefd, "%s\n", DebugBuffer);
 	}
 	else
-		puts(DebugBuffer);
+	    puts(DebugBuffer);
 } /* debug_msg */
 
 #ifdef __cplusplus

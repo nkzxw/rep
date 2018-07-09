@@ -147,13 +147,13 @@ class proc_remote{
 
     int openfilex(openargs *t,struct openres *buff){
 	encodeOpen(t);
-	//Log3(APP_LOG_ERROR,"%s,encodeOpen=%s",ip_port, message);
+	//bw_log(APP_LOG_ERROR,"%s,encodeOpen=%s",ip_port, message);
 	send();
 	recv();
 	process();
 	buff->hFile=g_openr.hFile;
 	buff->hFile2=g_openr.hFile2;
-	//Log3(APP_LOG_ERROR,"open handle=%p,%p",g_openr.hFile, g_openr.hFile2);
+	//bw_log(APP_LOG_ERROR,"open handle=%p,%p",g_openr.hFile, g_openr.hFile2);
 	return 0;
     }
 
@@ -163,11 +163,11 @@ class proc_remote{
 	g_closea.hFile = buff->hFile;
 	g_closea.hFile2 = buff->hFile2;
 	encodeClose(&g_closea);
-	//Log2(APP_LOG_ERROR,"encodeClose=%s",message);
+	//bw_log(APP_LOG_ERROR,"encodeClose=%s",message);
 	send();
 	recv();
 	process();
-	//Log3(APP_LOG_ERROR,"close res=%d,%d",g_closer.res, g_closer.res2);
+	//bw_log(APP_LOG_ERROR,"close res=%d,%d",g_closer.res, g_closer.res2);
 	return 0;
     }
 
@@ -387,7 +387,7 @@ class proc_remote{
 
 	ret = fcntl(fd, F_SETLK, &lock);
 	if (ret < 0) {
-	    Log2(APP_LOG_DEBUG, "file set lock false,error=%s",strerror(errno));
+	    bw_log(APP_LOG_DEBUG, "file set lock false,error=%s", strerror(errno));
 	}
 
 	return ret;
@@ -407,7 +407,7 @@ class proc_remote{
 
 	ret = fcntl(fd, F_SETLKW, &lock);
 	if (ret < 0) {
-	    Log2(APP_LOG_DEBUG, "file set unlock false,error=%s",strerror(errno));
+	    bw_log(APP_LOG_DEBUG, "file set unlock false,error=%s",strerror(errno));
 	}
 
 	return ret;
@@ -418,7 +418,7 @@ class proc_remote{
 	char buff[512];
 	memset(buff,0,512);
 	sprintf(buff,"%s,%d,%d,%d,%d",str,par1,par2,par3,par4);
-	Log2(APP_LOG_ERROR,"%s",buff);
+	bw_log(APP_LOG_ERROR,"%s",buff);
     }
 #endif
     int decodeDelegationRes(enfs_fcb_delegation *t)
@@ -478,7 +478,7 @@ class proc_remote{
 	cdev_fd = open("/dev/vdmap_dev", O_RDONLY);
 	if (fd <= 0) {
 	    ret = -ret;
-	    Log2(APP_LOG_ERROR, "Open cdev failed(%d).", cdev_fd);
+	    bw_log(APP_LOG_ERROR, "Open cdev failed(%d).", cdev_fd);
 	}
 
 	memset(&bw_arg, 0, sizeof(struct ioctl_struct));
@@ -491,7 +491,7 @@ class proc_remote{
 	ret = ioctl(cdev_fd,IOCTL_CODE_GET_DELEGATION_INFO,&bw_arg);
 	if (ret < 0) {
 	    ret = -ret;
-	    Log2(APP_LOG_ERROR, "Call ioctl failed(%d).", ret);
+	    bw_log(APP_LOG_ERROR, "Call ioctl failed(%d).", ret);
 	    return ret;
 	}
 #if 0
@@ -507,7 +507,7 @@ class proc_remote{
 	    ret2 = close(cdev_fd);
 	    if (ret2 < 0) {
 		ret = -ret2;
-		Log2(APP_LOG_ERROR, "Close cdev failed(%d).", errno);
+		bw_log(APP_LOG_ERROR, "Close cdev failed(%d).", errno);
 	    }
 	}
 
@@ -526,7 +526,7 @@ class proc_remote{
 	memset(&g_DelegationInfor,0,sizeof(g_DelegationInfor));
 	ret = ioctrl_get_deleg(t.hFile,&g_DelegationInfor);
 	if (ret < 0) {
-	    Log3(APP_LOG_ERROR, "ioctrl_read_error=%d,hFile=%d\n", errno, t.hFile);
+	    bw_log(APP_LOG_ERROR, "ioctrl_read_error=%d,hFile=%d\n", errno, t.hFile);
 	    return ret;
 	}
 	else {
@@ -634,19 +634,19 @@ class proc_remote{
 	int ret = 0;
 
 	if((g_openr.hFile >= 0 && g_openr.hFile2 >= 0) || (g_openr.hFile < 0 && g_openr.hFile2 < 0)) {
-	    Log5(APP_LOG_ERROR, "%s\t%-10d\t%-10d\n",g_opena.dwDesiredAccess,g_opena.dwDesiredAccess,1,0);
+	    bw_log(APP_LOG_ERROR, "%s\t%-10d\t%-10d\n",g_opena.dwDesiredAccess,g_opena.dwDesiredAccess,1,0);
 	    ret = 0;
 	}
 	else {
-	    Log5(APP_LOG_ERROR, "%s\t%-20s\t%-10d\t%-10d\n",g_opena.dwDesiredAccess,g_opena.dwDesiredAccess,0,1);
+	    bw_log(APP_LOG_ERROR, "%s\t%-20s\t%-10d\t%-10d\n",g_opena.dwDesiredAccess,g_opena.dwDesiredAccess,0,1);
 	    ret = 1;
 	}
 
 	if(ret) {
-	    Log3(APP_LOG_ERROR, "open not matchs! %p,%p",g_openr.hFile,g_openr.hFile2);
+	    bw_log(APP_LOG_ERROR, "open not matchs! %p,%p",g_openr.hFile,g_openr.hFile2);
 	}
 	else {
-	    Log3(APP_LOG_ERROR, "open matchs, %p,%p",g_openr.hFile,g_openr.hFile2);
+	    bw_log(APP_LOG_ERROR, "open matchs, %p,%p",g_openr.hFile,g_openr.hFile2);
 	}
 
 	return ret;
@@ -667,10 +667,10 @@ class proc_remote{
 	}
 
 	if (ret==0 || ret==1){
-	    Log3(APP_LOG_ERROR, "lock match = %d,%d",g_lockr.res,g_lockr.res2);
+	    bw_log(APP_LOG_ERROR, "lock match = %d,%d",g_lockr.res,g_lockr.res2);
 	}
 	else{
-	    Log3(APP_LOG_ERROR, "lock not match = %d,%d",g_lockr.res,g_lockr.res2);
+	    bw_log(APP_LOG_ERROR, "lock not match = %d,%d",g_lockr.res,g_lockr.res2);
 	}
 	return ret;
     }
@@ -689,10 +689,10 @@ class proc_remote{
 	}
 
 	if (ret==0 || ret==1){
-	    Log3(APP_LOG_ERROR, "unlock match = %d,%d",g_unlockr.res,g_unlockr.res2);
+	    bw_log(APP_LOG_ERROR, "unlock match = %d,%d",g_unlockr.res,g_unlockr.res2);
 	}
 	else{
-	    Log3(APP_LOG_ERROR, "unlock not match = %d,%d",g_unlockr.res,g_unlockr.res2);
+	    bw_log(APP_LOG_ERROR, "unlock not match = %d,%d",g_unlockr.res,g_unlockr.res2);
 	}
 	return ret;
     }

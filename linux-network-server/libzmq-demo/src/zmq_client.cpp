@@ -106,7 +106,7 @@ struct openargs opena={\
 #define log_open_2(i1,i2,k1,k2)\
 	do{\
 	printf("open indexes = %d,%d,%d,%d\n",i1,k1,i2,k2);\
-	Log5(APP_LOG_DEBUG, "open Desired-Share: [0x%x, 0x%x]->[0x%x, 0x%x]",\
+	bw_log(APP_LOG_DEBUG, "open Desired-Share: [0x%x, 0x%x]->[0x%x, 0x%x]",\
 	dwDesired[i1],\
 	dwShare[k1],\
 	dwDesired[i2],\
@@ -115,7 +115,7 @@ struct openargs opena={\
 	
 #define log_lock_1(v,i1,k1) \
 	do{ printf("log_lock_1 range indexes = %d\n",i1);\
-	log_msg(APP_LOG_DEBUG, "lock: offset-len-IsExc:[0x%llu,0x%llu,0x%x]",\
+	bw_log(APP_LOG_DEBUG, "lock: offset-len-IsExc:[0x%llu,0x%llu,0x%x]",\
 	v[i1].dwFileOffset,\
 	v[i1].nNumberOfBytesToLock,\
 	dwFlags[k1]%2);\
@@ -123,7 +123,7 @@ struct openargs opena={\
 
 #define log_lock_2(v,k1,k2,i1,i2) \
 	do{ printf("log_lock_2 range indexes = %d,%d\n",i1,i2);\
-	Log7(APP_LOG_DEBUG, "lock: offset-length-IsExc:[0x%llu,0x%llu,0x%x]->[0x%llu,0x%llu,0x%x]",\
+	bw_log(APP_LOG_DEBUG, "lock: offset-length-IsExc:[0x%llu,0x%llu,0x%x]->[0x%llu,0x%llu,0x%x]",\
 	v[i1].dwFileOffset,\
 	v[i1].nNumberOfBytesToLock,\
 	dwFlags[k1]%2,\
@@ -134,7 +134,7 @@ struct openargs opena={\
 
 #define log_lock_3(v,k1,k2,k3,i1,i2,i3) \
 	do{ printf("log_lock_3 range indexes = %d,%d,%d\n",i1,i2,i3);\
-	log_msg(APP_LOG_DEBUG, "lock: offset-len-IsExc:[0x%llu,0x%llu,0x%x]->[0x%llu,0x%llu,0x%x]->[0x%llu,0x%llu,0x%x]",\
+	bw_log(APP_LOG_DEBUG, "lock: offset-len-IsExc:[0x%llu,0x%llu,0x%x]->[0x%llu,0x%llu,0x%x]->[0x%llu,0x%llu,0x%x]",\
 	v[i1].dwFileOffset,\
 	v[i1].nNumberOfBytesToLock,\
 	dwFlags[k1]%2,\
@@ -148,7 +148,7 @@ struct openargs opena={\
 
 #define log_lock_4(v,k1,k2,k3,k4,i1,i2,i3,i4) \
 	do{	printf("log_lock_4 range indexes = %d,%d,%d,%d\n",i1,i2,i3,i4);\
-	log_msg(APP_LOG_DEBUG, "lock: offset-len-isExcl:[0x%llu,0x%llu,0x%x],[0x%llu,0x%llu,0x%x],[0x%llu,0x%llu,0x%x],[0x%llu,0x%llu,0x%x]",\
+	bw_log(APP_LOG_DEBUG, "lock: offset-len-isExcl:[0x%llu,0x%llu,0x%x],[0x%llu,0x%llu,0x%x],[0x%llu,0x%llu,0x%x],[0x%llu,0x%llu,0x%x]",\
 	v[i1].dwFileOffset,\
 	v[i1].nNumberOfBytesToLock,\
 	dwFlags[k1]%2,\
@@ -212,11 +212,11 @@ int open_case1(class proc_remote pr1)
 		if ((pr1.g_openr.hFile < 0 || pr1.g_openr.hFile2 < 0) || 
 			(pr1.g_openr.hFile < 0 || pr1.g_openr.hFile2 > 0) ||
 			(pr1.g_openr.hFile > 0 || pr1.g_openr.hFile2 < 0)) {
-			Log2(APP_LOG_DEBUG, "open once on fail,Desired-Share:[%d]", dwDesired[i1]);
+			bw_log(APP_LOG_DEBUG, "open once on fail,Desired-Share:[%d]", dwDesired[i1]);
 			continue;
 		}
 		else {
-			Log2(APP_LOG_DEBUG, "open once success, Desired-Share:[%d]", dwDesired[i1]);
+			bw_log(APP_LOG_DEBUG, "open once success, Desired-Share:[%d]", dwDesired[i1]);
 		}
 		pr1.closefile();
 	}
@@ -251,17 +251,17 @@ int lock_case1(class proc_remote pr1, struct openargs opena, struct lockiov* mli
 	unsigned int i1,k1;
 	
 	for_lock_1(i1,k1,len) {
-		Log3(APP_LOG_ERROR, "lock_case1 pr1 opena[%ud],%ud",i1,k1);
+		bw_log(APP_LOG_ERROR, "lock_case1 pr1 opena[%ud],%ud",i1,k1);
 		pr1.openfile(&opena);
 //		log_lock_1(mliov,i1,k1);
 		if (pr1.g_openr.hFile < 0) {
-			Log2(APP_LOG_DEBUG, "open once failed,%x", opena.dwDesiredAccess);
+			bw_log(APP_LOG_DEBUG, "open once failed,%x", opena.dwDesiredAccess);
 		}
 		struct lockargs locka = lock_construct(pr1, k1, mliov, i1);
 		pr1.lock(&locka);
 		ret = pr1.checklock();
 		if(ret == 1 || ret == 2) {
-			Log6(APP_LOG_DEBUG, "lock,offset-len-locktype:[0x%x,0x%x,0x%x]->[%d,%d]",
+			bw_log(APP_LOG_DEBUG, "lock,offset-len-locktype:[0x%x,0x%x,0x%x]->[%d,%d]",
 				mliov[i1].dwFileOffset,
 				mliov[i1].nNumberOfBytesToLock,
 				dwFlags[k1],
@@ -274,7 +274,7 @@ int lock_case1(class proc_remote pr1, struct openargs opena, struct lockiov* mli
 			pr1.unlock(&locka);
 			ret = pr1.checkunlock();
 			if(ret == 1 || ret == 2) {
-				Log6(APP_LOG_DEBUG, "unlock,offset-len-locktype:[0x%x,0x%x,0x%x]->[%d,%d]",
+				bw_log(APP_LOG_DEBUG, "unlock,offset-len-locktype:[0x%x,0x%x,0x%x]->[%d,%d]",
 					mliov[i1].dwFileOffset,
 					mliov[i1].nNumberOfBytesToLock,
 					dwFlags[k1],
@@ -298,8 +298,8 @@ int lock_case2(class proc_remote pr1, struct openargs opena, struct lockiov* mli
 	
 	for_lock_2(k1,k2,i1,i2,len) {
 		count++;
-		Log3(APP_LOG_ERROR, "lock_case2 pr1 opena[%ud],%ud",i1,k1);
-		Log3(APP_LOG_ERROR, "lock_case2 pr1 openb[%ud],%ud",i2,k2);
+		bw_log(APP_LOG_ERROR, "lock_case2 pr1 opena[%ud],%ud",i1,k1);
+		bw_log(APP_LOG_ERROR, "lock_case2 pr1 openb[%ud],%ud",i2,k2);
 		pr1.openfile(&opena);
 		struct lockargs locka = lock_construct(pr1, k1, mliov, i1);
 		struct lockargs lockb = lock_construct(pr1, k2, mliov, i2);
@@ -307,7 +307,7 @@ int lock_case2(class proc_remote pr1, struct openargs opena, struct lockiov* mli
 		pr1.lock(&locka);
 		pr1ret = pr1.checklock();
 		if(pr1ret == 1 || pr1ret == 2) {
-			Log6(APP_LOG_DEBUG, "lock false,offset-len-locktype:[0x%x,0x%x]->[%d,%d]",
+			bw_log(APP_LOG_DEBUG, "lock false,offset-len-locktype:[0x%x,0x%x]->[%d,%d]",
 				mliov[i1].dwFileOffset,
 				mliov[i1].nNumberOfBytesToLock,
 				dwFlags[k1],
@@ -320,7 +320,7 @@ int lock_case2(class proc_remote pr1, struct openargs opena, struct lockiov* mli
 		pr1.lock(&lockb);	
 		pr2ret = pr1.checklock();
 		if(pr2ret == 1 || pr2ret == 2) {
-			Log9(APP_LOG_DEBUG, "second lock false, offset-len-locktype: [0x%x,0x%x,0x%x],[0x%x,0x%x,0x%x]->[%d,%d]",
+			bw_log(APP_LOG_DEBUG, "second lock false, offset-len-locktype: [0x%x,0x%x,0x%x],[0x%x,0x%x,0x%x]->[%d,%d]",
 				mliov[i1].dwFileOffset,
 				mliov[i1].nNumberOfBytesToLock,
 				dwFlags[k1],
@@ -335,7 +335,7 @@ int lock_case2(class proc_remote pr1, struct openargs opena, struct lockiov* mli
 		if(!pr1ret){
 			pr1.unlock(&locka);
 			if(pr1.checkunlock()){
-				Log6(APP_LOG_DEBUG, "unlock false,offset-len-locktype:[0x%x,0x%x,0x%x]->[%d,%d]",
+				bw_log(APP_LOG_DEBUG, "unlock false,offset-len-locktype:[0x%x,0x%x,0x%x]->[%d,%d]",
 					mliov[i1].dwFileOffset,
 					mliov[i1].nNumberOfBytesToLock,
 					dwFlags[k1],
@@ -348,7 +348,7 @@ int lock_case2(class proc_remote pr1, struct openargs opena, struct lockiov* mli
 		if(!pr2ret){
 			pr1.unlock(&lockb);
 			if(pr1.checkunlock()){
-				Log9(APP_LOG_ERROR, "unlock false, offset-len-locktype: [0x%x,0x%x,0x%x],[0x%x,0x%x,0x%x]->[%d,%d]",
+				bw_log(APP_LOG_ERROR, "unlock false, offset-len-locktype: [0x%x,0x%x,0x%x],[0x%x,0x%x,0x%x]->[%d,%d]",
 					mliov[i1].dwFileOffset,
 					mliov[i1].nNumberOfBytesToLock,
 					dwFlags[k1],
@@ -377,8 +377,8 @@ int lock_case3(class proc_remote pr1, class proc_remote pr2, struct openargs ope
 	unsigned int k1,k2,i1,i2;
 	
 	for_lock_2(k1,k2,i1,i2,len) {
-		Log3(APP_LOG_ERROR, "lock_case3 pr1 opena[%ud],%ud",i1,k1);
-		Log3(APP_LOG_ERROR, "lock_case3 pr2 openb[%ud],%ud",i2,k2);
+		bw_log(APP_LOG_ERROR, "lock_case3 pr1 opena[%ud],%ud",i1,k1);
+		bw_log(APP_LOG_ERROR, "lock_case3 pr2 openb[%ud],%ud",i2,k2);
 		pr1.openfile(&opena);
 		pr2.openfile(&opena);
 		struct lockargs locka = lock_construct(pr1, k1, mliov, i1);
@@ -386,7 +386,7 @@ int lock_case3(class proc_remote pr1, class proc_remote pr2, struct openargs ope
 		pr1.lock(&locka);
 		pr1ret = pr1.checklock();
 		if(pr1ret == 1 || pr1ret == 2) {
-			Log6(APP_LOG_DEBUG, "lock false,offset-len-locktype:[0x%x,0x%x,0x%x]->[%d,%d]",
+			bw_log(APP_LOG_DEBUG, "lock false,offset-len-locktype:[0x%x,0x%x,0x%x]->[%d,%d]",
 				mliov[i1].dwFileOffset,
 				mliov[i1].nNumberOfBytesToLock,
 				dwFlags[k1],
@@ -398,7 +398,7 @@ int lock_case3(class proc_remote pr1, class proc_remote pr2, struct openargs ope
 		pr2.lock(&lockb);
 		pr2ret = pr2.checklock();
 		if(pr2ret == 1 || pr2ret == 2) {
-			log_msg(APP_LOG_DEBUG, "second lock index = %d,%d false, offset-len-locktype: [0x%x,0x%x,0x%x],[0x%x,0x%x,0x%x]->[%d,%d]",
+			bw_log(APP_LOG_DEBUG, "second lock index = %d,%d false, offset-len-locktype: [0x%x,0x%x,0x%x],[0x%x,0x%x,0x%x]->[%d,%d]",
 				i1,i2,
 				mliov[i1].dwFileOffset,
 				mliov[i1].nNumberOfBytesToLock,
@@ -415,7 +415,7 @@ int lock_case3(class proc_remote pr1, class proc_remote pr2, struct openargs ope
 		if(!pr1ret){
 			pr1.unlock(&locka);
 			if(pr1.checkunlock()){
-				Log6(APP_LOG_DEBUG, "unlock false,offset-len-locktype:[0x%x,0x%x,0x%x]->[%d,%d]",
+				bw_log(APP_LOG_DEBUG, "unlock false,offset-len-locktype:[0x%x,0x%x,0x%x]->[%d,%d]",
 					mliov[i1].dwFileOffset,
 					mliov[i1].nNumberOfBytesToLock,
 					dwFlags[k1],
@@ -428,7 +428,7 @@ int lock_case3(class proc_remote pr1, class proc_remote pr2, struct openargs ope
 		if(!pr2ret){
 			pr2.unlock(&lockb);
 			if(pr2.checkunlock()){
-				log_msg(APP_LOG_DEBUG, "unlock index = %d,%d false, offset-len-locktype: [0x%x,0x%x,0x%x],[0x%x,0x%x,0x%x]->[%d,%d]",
+				bw_log(APP_LOG_DEBUG, "unlock index = %d,%d false, offset-len-locktype: [0x%x,0x%x,0x%x],[0x%x,0x%x,0x%x]->[%d,%d]",
 					i1,i2,
 					mliov[i1].dwFileOffset,
 					mliov[i1].nNumberOfBytesToLock,
@@ -458,9 +458,9 @@ int lock_case4(class proc_remote pr1, class proc_remote pr2, struct openargs ope
 	unsigned int k1,k2,k3,i1,i2,i3;
 	
 	for_lock_3(k1,k2,k3,i1,i2,i3,len) {
-		Log3(APP_LOG_ERROR, "lock_case4 pr1 opena[%ud],%ud",i1,k1);
-		Log3(APP_LOG_ERROR, "lock_case4 pr1 openb[%ud],%ud",i2,k2);
-		Log3(APP_LOG_ERROR, "lock_case4 pr2 openc[%ud],%ud",i3,k3);
+		bw_log(APP_LOG_ERROR, "lock_case4 pr1 opena[%ud],%ud",i1,k1);
+		bw_log(APP_LOG_ERROR, "lock_case4 pr1 openb[%ud],%ud",i2,k2);
+		bw_log(APP_LOG_ERROR, "lock_case4 pr2 openc[%ud],%ud",i3,k3);
 		pr1.openfile(&opena);
 		pr2.openfile(&opena);
 		struct lockargs locka = lock_construct(pr1,k1,mliov,i1);
@@ -488,10 +488,10 @@ struct openargs opena,struct lockiov* mliov, unsigned int len)
 	unsigned int k1,k2,k3,k4,i1,i2,i3,i4;
 	
 	for_lock_4(k1,k2,k3,k4,i1,i2,i3,i4,len) {
-		Log3(APP_LOG_ERROR, "lock_case5 pr1 opena[%ud],%ud",i1,k1);
-		Log3(APP_LOG_ERROR, "lock_case5 pr2 openb[%ud],%ud",i2,k2);
-		Log3(APP_LOG_ERROR, "lock_case5 pr3 openc[%ud],%ud",i3,k3);
-		Log3(APP_LOG_ERROR, "lock_case5 pr4 opena[%ud],%ud",i4,k4);
+		bw_log(APP_LOG_ERROR, "lock_case5 pr1 opena[%ud],%ud",i1,k1);
+		bw_log(APP_LOG_ERROR, "lock_case5 pr2 openb[%ud],%ud",i2,k2);
+		bw_log(APP_LOG_ERROR, "lock_case5 pr3 openc[%ud],%ud",i3,k3);
+		bw_log(APP_LOG_ERROR, "lock_case5 pr4 opena[%ud],%ud",i4,k4);
 		pr1.openfile(&opena);
 		pr2.openfile(&opena);
 		pr3.openfile(&opena);
@@ -525,9 +525,9 @@ int lock_case6(class proc_remote pr1, class proc_remote pr2, struct openargs ope
 	unsigned int k1,k2,k3,i1,i2,i3;
 	
 	for_lock_3(k1,k2,k3,i1,i2,i3,len) {
-		Log3(APP_LOG_ERROR, "lock_case6 pr1 opena[%ud],%ud",i1,k1);
-		Log3(APP_LOG_ERROR, "lock_case6 pr1 openb[%ud],%ud",i2,k2);
-		Log3(APP_LOG_ERROR, "lock_case6 pr2 openc[%ud],%ud",i3,k3);
+		bw_log(APP_LOG_ERROR, "lock_case6 pr1 opena[%ud],%ud",i1,k1);
+		bw_log(APP_LOG_ERROR, "lock_case6 pr1 openb[%ud],%ud",i2,k2);
+		bw_log(APP_LOG_ERROR, "lock_case6 pr2 openc[%ud],%ud",i3,k3);
 		pr1.openfile(&opena);
 		pr2.openfile(&opena);
 		struct lockargs locka = lock_construct(pr1,k1,mliov,i1);
@@ -555,9 +555,9 @@ int lock_case7(class proc_remote pr1, class proc_remote pr2, struct openargs ope
 	unsigned int k1,k2,k3,i1,i2,i3;
 	
 	for_lock_3(k1,k2,k3,i1,i2,i3,len) {
-		Log3(APP_LOG_ERROR, "lock_case7 pr1 opena[%ud],%ud",i1,k1);
-		Log3(APP_LOG_ERROR, "lock_case7 pr1 openb[%ud],%ud",i2,k2);
-		Log3(APP_LOG_ERROR, "lock_case7 pr2 openc[%ud],%ud",i3,k3);
+		bw_log(APP_LOG_ERROR, "lock_case7 pr1 opena[%ud],%ud",i1,k1);
+		bw_log(APP_LOG_ERROR, "lock_case7 pr1 openb[%ud],%ud",i2,k2);
+		bw_log(APP_LOG_ERROR, "lock_case7 pr2 openc[%ud],%ud",i3,k3);
 		pr1.openfile(&opena);
 		pr2.openfile(&opena);
 		struct lockargs locka = lock_construct(pr1,k1,mliov,i1);
@@ -585,9 +585,9 @@ int lock_case8(class proc_remote pr1, class proc_remote pr2, struct openargs ope
 	unsigned int k1,k2,k3,i1,i2,i3;
 	
 	for_lock_3(k1,k2,k3,i1,i2,i3,len) {
-		Log3(APP_LOG_ERROR, "lock_case8 pr1 opena[%ud],%ud",i1,k1);
-		Log3(APP_LOG_ERROR, "lock_case8 pr1 openb[%ud],%ud",i2,k2);
-		Log3(APP_LOG_ERROR, "lock_case8 pr3 openc[%ud],%ud",i3,k3);
+		bw_log(APP_LOG_ERROR, "lock_case8 pr1 opena[%ud],%ud",i1,k1);
+		bw_log(APP_LOG_ERROR, "lock_case8 pr1 openb[%ud],%ud",i2,k2);
+		bw_log(APP_LOG_ERROR, "lock_case8 pr3 openc[%ud],%ud",i3,k3);
 		pr1.openfile(&opena);
 		pr2.openfile(&opena);
 		struct lockargs locka = lock_construct(pr1,k1,mliov,i1);
@@ -638,12 +638,9 @@ void logInit(char *pOutFile)
 	char LogFile[MAX_PATH]="\0";
 	sprintf(LogFile, "%s_tbl.log", pOutFile);
 	
-	DebugLogSetLevel(APP_LOG_DEBUG);
 	DebugLogSetLogType(DEBUGLOG_STDOUT_FILE);
 	g_TableFileHandle= fopen(LogFile, "w+");
 	set_fd(g_TableFileHandle);
-	Log3(APP_LOG_DEBUG, "%-20s\t%-60s\t","process1","process2");
-	Log5(APP_LOG_DEBUG, "%s\t%-20s\t%-10s\t%-10s","AccessMode","AccessMode","Bwfs","nfs");
 }
 
 void logClose()
@@ -659,16 +656,18 @@ void delegationTestCase1(class proc_remote *pr1);
 void delegationTestCase2_3(int testCase,class proc_remote *pr1,class proc_remote *pr2);
 
 void ha_case1(class proc_remote *pr1){
-    int	res = pr1->DoShell(SERVICE_CHECK);
-    printf("service bwfs status = %s\n", (pr1->g_shell_res==1)?"ok":"fail");
+    int	res;
+    res = pr1->DoShell(SERVICE_CHECK);
+    //printf("service bwfs status = %s", (pr1->g_shell_res==1)?"ok":"fail");
+    bw_log((pr1->g_shell_res==1)?APP_LOG_DEBUG:APP_LOG_ERROR,"service bwfs status = %s", (pr1->g_shell_res==1)?"ok":"fail");
     res = pr1->DoShell(STOP_SERVICE);
-    printf("service bwfs stop = %s\n", (pr1->g_shell_res==1)?"ok":"fail");
+    bw_log((pr1->g_shell_res==1)?APP_LOG_DEBUG:APP_LOG_ERROR,"service bwfs stop = %s", (pr1->g_shell_res==1)?"ok":"fail");
     res = pr1->DoShell(START_SERVICE);
-    printf("service bwfs start = %s\n", (pr1->g_shell_res==1)?"ok":"fail");
+    bw_log((pr1->g_shell_res==1)?APP_LOG_DEBUG:APP_LOG_ERROR,"service bwfs start = %s", (pr1->g_shell_res==1)?"ok":"fail");
     res = pr1->DoShell(BLOCK_CLIENT);
-    printf("block client = %s\n", (pr1->g_shell_res==1)?"ok":"fail");
+    bw_log((pr1->g_shell_res==1)?APP_LOG_DEBUG:APP_LOG_ERROR,"block client = %s", (pr1->g_shell_res==1)?"ok":"fail");
     res = pr1->DoShell(STOP_BLOCK_CLIENT);
-    printf("not block client = %s\n", (pr1->g_shell_res==1)?"ok":"fail");
+    bw_log((pr1->g_shell_res==1)?APP_LOG_DEBUG:APP_LOG_ERROR,"stop block client = %s", (pr1->g_shell_res==1)?"ok":"fail");
 }
 
 static const char *progname = NULL;
@@ -691,6 +690,7 @@ int main(int argc, char* argv[])
 	int c;
 	int server_index = 0;
 	int case_type = 0;
+	int log_level = -1;
 	int conn_type = 0;
 	char server[MAX_SERVER][M_SIZE]={"0"};
 	char pOutFile[M_SIZE]="\0";
@@ -705,10 +705,11 @@ int main(int argc, char* argv[])
 			{"compare",  1,  0, 'c'},
 			{"output",  1,  0, 'o'},
 			{"case_type",  1,  0, 't'},
+			{"log_level",  1,  0, 't'},
 			{ NULL , NULL , NULL , NULL }
 		};
 		int option_index = 0;
-		c = getopt_long(argc, argv, "d:f:c:o:t:", long_options, &option_index);
+		c = getopt_long(argc, argv, "d:f:c:o:t:l:", long_options, &option_index);
 		if (c == -1)
 			break;
 		switch (c) {
@@ -728,28 +729,33 @@ int main(int argc, char* argv[])
 		case 't':
 			case_type = atoi(optarg);
 			break;
+		case 'l':
+			log_level = atoi(optarg);
+			break;
 		default:
 			printf ("non-option argv: %c,%s",c,optarg);
 			usage();
 		}
 	}
 	logInit(pOutFile);
+	if(log_level >= 0)
+	    DebugLogSetLevel(log_level);
+	bw_log(APP_LOG_DEBUG, "%-20s\t%-60s\t","process1","process2");
+	bw_log(APP_LOG_DEBUG, "%s\t%-20s\t%-10s\t%-10s","AccessMode","AccessMode","Bwfs","nfs");
 
+	void * g_context = zmq_init(1); 
 	class proc_remote pr1;
 	class proc_remote pr2;
 	class proc_remote pr3;
 	//class proc_remote pr4={};
-	
-	void * g_context = zmq_init(1); 
-	int res = pr1.connect(conn_type, server[0], g_context);
 
-	ha_case1(&pr1);
-
-	if ((optind < argc) || (server_index < 2)) {
+	if ((optind < argc) || (server_index < 1)) {
 		printf ("not enough args\n");
 		usage();
 	}
-	pr1.connect(conn_type,server[0], g_context);
+	int res = pr1.connect(conn_type, server[0], g_context);
+	ha_case1(&pr1);
+
 	pr2.connect(conn_type,server[1], g_context);
 	pr3.connect(conn_type,server[2], g_context);
 
@@ -772,29 +778,29 @@ int main(int argc, char* argv[])
 			strcpy(opena.lpFileName,target);
 			strcpy(opena.lpFileName2,target2);
 
-			Log2(APP_LOG_ERROR, "open file is  +++++++++++++++++ %s",dwDesireds[kk]);
+			bw_log(APP_LOG_ERROR, "open file is  +++++++++++++++++ %s",dwDesireds[kk]);
 			//测试单进程一个范围加锁
 			lock_case1(pr1, opena, g_liov_1,sizeof(g_liov_1)/sizeof(lockiov));
-			Log1(APP_LOG_ERROR, "lock_case1 end");
+			bw_log(APP_LOG_ERROR, "lock_case1 end");
 			//测试单个进程，多个范围加锁
 			lock_case2(pr1, opena, g_liov_1,sizeof(g_liov_1)/sizeof(lockiov));
-			Log1(APP_LOG_ERROR, "lock_case2 end");
+			bw_log(APP_LOG_ERROR, "lock_case2 end");
 			lock_case3(pr1, pr2, opena, g_liov_1,sizeof(g_liov_1)/sizeof(lockiov));
-			Log1(APP_LOG_ERROR, "lock_case3 end");
+			bw_log(APP_LOG_ERROR, "lock_case3 end");
 			lock_case4(pr1, pr2, opena, g_liov_1,sizeof(g_liov_1)/sizeof(lockiov));
-			Log1(APP_LOG_ERROR, "lock_case4 end");
+			bw_log(APP_LOG_ERROR, "lock_case4 end");
 //			lock_case5(pr1, pr2, pr3, pr4, opena, g_liov_1, sizeof(g_liov_1)/sizeof(lockiov));
-//			Log1(APP_LOG_ERROR, "lock_case5 end");
+//			bw_log(APP_LOG_ERROR, "lock_case5 end");
 			lock_case6(pr1, pr2, opena, g_liov_1,sizeof(g_liov_1)/sizeof(lockiov));
-			Log1(APP_LOG_ERROR, "lock_case6_1 end");
+			bw_log(APP_LOG_ERROR, "lock_case6_1 end");
 //			lock_case6(pr1, pr3, opena, g_liov_1,sizeof(g_liov_1)/sizeof(lockiov));
-			Log1(APP_LOG_ERROR, "lock_case6_2 end");
+			bw_log(APP_LOG_ERROR, "lock_case6_2 end");
 			lock_case7(pr1, pr2, opena, g_liov_1,sizeof(g_liov_1)/sizeof(lockiov));
-			Log1(APP_LOG_ERROR, "lock_case7_1 end");
+			bw_log(APP_LOG_ERROR, "lock_case7_1 end");
 //			lock_case7(pr1, pr3, opena, g_liov_1,sizeof(g_liov_1)/sizeof(lockiov));
-			Log1(APP_LOG_ERROR, "lock_case7_2 end");
+			bw_log(APP_LOG_ERROR, "lock_case7_2 end");
 			lock_case8(pr1, pr2, opena, g_liov_1,sizeof(g_liov_1)/sizeof(lockiov));
-			Log1(APP_LOG_ERROR, "lock_case8 end");
+			bw_log(APP_LOG_ERROR, "lock_case8 end");
 		}
 		printf("test lock end\r\n");
 	}
@@ -891,7 +897,7 @@ void MyOutPutDebugStr(char*str,int par1=0,int par2=0,int par3=0,int par4=0)
 
 	memset(buff,0,512);
 	sprintf(buff,"%s,%d,%d,%d,%d",str,par1,par2,par3,par4);
-	Log2(APP_LOG_ERROR,"%s",buff);
+	bw_log(APP_LOG_ERROR,"%s",buff);
 }
 void outPutLog(bool testPass,int testCase,int optionIndex,enfs_fcb_delegation *buff1,enfs_fcb_delegation *buff2,char failOpen=0)
 {
@@ -989,8 +995,8 @@ void outPutLog(bool testPass,int testCase,int optionIndex,enfs_fcb_delegation *b
 		}
 	}
 
-	Log9(APP_LOG_ERROR, "%s %s %s %s %s %s %s %s",TCase,pass,rw1,close,delay,rw2,yuqi,more_infor);
-//	Log5(APP_LOG_ERROR, "testCase:optionIndex:close:delay",testCase,optionIndex,g_delegation_testoption[optionIndex].close,g_delegation_testoption[optionIndex].delayTime);
+	bw_log(APP_LOG_ERROR, "%s %s %s %s %s %s %s %s",TCase,pass,rw1,close,delay,rw2,yuqi,more_infor);
+//	bw_log(APP_LOG_ERROR, "testCase:optionIndex:close:delay",testCase,optionIndex,g_delegation_testoption[optionIndex].close,g_delegation_testoption[optionIndex].delayTime);
 }
 
 bool processOnceDelegationGetRes(enfs_fcb_delegation *buff1,enfs_fcb_delegation *buff2,int testCase,int optionIndex)
@@ -1044,7 +1050,7 @@ BOOL File_Open_Close(struct openres *openfileR,class proc_remote *pr,BOOL BeOpen
 		if (!pr->checkopen2()){
 			if(pr->g_openr.hFile < 0){
 				ret=FALSE;
-				Log1(APP_LOG_ERROR,"pr1 open file error");
+				bw_log(APP_LOG_ERROR,"pr1 open file error");
 			}
 		}
 	} 
@@ -1080,7 +1086,7 @@ void closeFileStep(int optionIndex,class proc_remote *pr,struct openres *openfil
 void delaytimeStep(int optionIndex)
 {
 	if (g_delegation_testoption[optionIndex].delayTime) {
-		Log2(APP_LOG_ERROR,"wait second...%d",g_delegation_testoption[optionIndex].delayTime);
+		bw_log(APP_LOG_ERROR,"wait second...%d",g_delegation_testoption[optionIndex].delayTime);
 		sleep(g_delegation_testoption[optionIndex].delayTime);
 	}
 }
