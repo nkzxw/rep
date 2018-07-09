@@ -674,12 +674,13 @@ static const char *progname = NULL;
 
 void usage(void)
 {
-    fprintf(stderr, "usage: %s -d server -f file -c compare_file -o output -t case_type\n"
+    fprintf(stderr, "usage: %s -d server -f file -c compare_file -o output -t case_type -l log_level\n"
 	    "server: ip:port\n"
 	    "file: test file path\n"
 	    "compare_file: file path to compare\n"
 	    "output: log file path\n"
 	    "case_type: test case type\n", 
+	    "log_level: set log level\n", 
 	    progname);
     exit(1);
 }

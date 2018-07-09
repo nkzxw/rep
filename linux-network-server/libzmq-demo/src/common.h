@@ -2,7 +2,7 @@
 #define COMMON_H_
 #include <zmq.h>
 //#include <zmq_utils.h>
-#include <iostream>
+//#include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -20,7 +20,6 @@
 
 #include "basetypes.h"
 #include "debuglog.h"
-using namespace std;
 #define MAX_PATH	260
 
 struct openargs{
