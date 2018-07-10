@@ -2,21 +2,22 @@
 #define COMMON_H_
 #include <zmq.h>
 //#include <zmq_utils.h>
-//#include <iostream>
+//#include <stdio.h>
 #include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
 #include <getopt.h>
 #include <string.h>
-#include <unistd.h>
-#include <sys/time.h>
-#include <netinet/in.h>
+//#include <time.h>
 
-#include <sys/types.h>
-#include <sys/stat.h>
+//#include <sys/time.h>
+//#include <netinet/in.h>
+//#include <sys/types.h>
+//#include <sys/stat.h>
+//#include <error.h>
+#if !defined _WIN32
+#include <unistd.h>
 #include <fcntl.h>
-#include <error.h>
 #include <sys/ioctl.h>
+#endif
 
 #include "basetypes.h"
 #include "debuglog.h"
@@ -24,37 +25,33 @@
 
 struct openargs{
     CHAR lpFileName[MAX_PATH];
-    CHAR lpFileName2[MAX_PATH];
     DWORD dwDesiredAccess;
+    DWORD dwShareMode;
+    DWORD dwCreationDisposition;
 };
 
 struct closeargs{
     int hFile;
-    int hFile2;
 };
 
 //lock and unlock
 struct lockargs{
     int hFile;
-    int hFile2;
-    DWORD dwType;//¶ÁÐ´Ëø±ê¼Ç¡¢½âËø//type
+    DWORD dwType;//
     DWORD dwFileStart;//start
     DWORD dwFileLen;//len
 };
 
 struct openres{
     int hFile;
-    int hFile2;
 };
 
 struct closeres{
     int res;
-    int res2;
 };
 //lock and unlock
 struct lockres{
     int res;
-    int res2;
 };
 
 struct IO_RESULT 
@@ -135,6 +132,8 @@ class proc_remote{
     int g_shell_res;
     public:
     int process();
+    int doDelegationCmd();
+    int doOpen();
     int openfile(openargs *t)
     {
 	encodeOpen(t);
@@ -151,7 +150,6 @@ class proc_remote{
 	recv();
 	process();
 	buff->hFile=g_openr.hFile;
-	buff->hFile2=g_openr.hFile2;
 	//bw_log(APP_LOG_ERROR,"open handle=%p,%p",g_openr.hFile, g_openr.hFile2);
 	return 0;
     }
@@ -160,7 +158,6 @@ class proc_remote{
     {
 	printf("start test delegation closefilex \n");
 	g_closea.hFile = buff->hFile;
-	g_closea.hFile2 = buff->hFile2;
 	encodeClose(&g_closea);
 	//bw_log(APP_LOG_ERROR,"encodeClose=%s",message);
 	send();
@@ -170,19 +167,10 @@ class proc_remote{
 	return 0;
     }
 
-    int checkopen2()
-    {
-	printf("start test delegation checkopen2 \n");
-	if (g_openr.hFile < 0) 
-	    return 0;
-
-	return 1;
-    }
-
+    
     int closefile()
     {
 	g_closea.hFile = g_openr.hFile;
-	g_closea.hFile2 = g_openr.hFile2;
 	encodeClose(&g_closea);
 	send();
 	recv();
@@ -208,24 +196,21 @@ class proc_remote{
 
 	return 0;
     }
-
-    int encodeOpen(struct openargs *t)
-    {
+    int inline encodeOpen(struct openargs *t){
 	memset(message,0,M_SIZE);
-	sprintf(message,"%u %s %s %lu", 1,
+	sprintf(message,"%u %s %u %u %u", 1, 
 		t->lpFileName, 
-		t->lpFileName2, 
-		t->dwDesiredAccess);
-
+		t->dwDesiredAccess,
+		t->dwShareMode, 
+		t->dwCreationDisposition);
 	return 0;
     }
 
     int encodeOpenR(struct openres *t)
     {
 	memset(message,0,M_SIZE);
-	sprintf(message,"%u %d %d", 2, 
-		t->hFile,
-		t->hFile2);
+	sprintf(message,"%u %d", 2, 
+		t->hFile);
 
 	return 0;
     }
@@ -233,9 +218,8 @@ class proc_remote{
     int encodeLock(struct lockargs *t)
     {
 	memset(message,0,M_SIZE);
-	sprintf(message,"%u %d %d %lu %lu %lu", 3,
+	sprintf(message,"%u %d %lu %lu %lu", 3,
 		t->hFile, 
-		t->hFile2, 
 		t->dwType, 
 		t->dwFileStart,
 		t->dwFileLen);
@@ -246,9 +230,8 @@ class proc_remote{
     int encodeLockR(struct lockres *t)
     {
 	memset(message,0,M_SIZE);
-	sprintf(message,"%u %d %d", 4, 
-		t->res,
-		t->res2);
+	sprintf(message,"%u %d", 4, 
+		t->res);
 
 	return 0;
     }
@@ -256,9 +239,8 @@ class proc_remote{
     int encodeUnLock(struct lockargs *t)
     {
 	memset(message,0,M_SIZE);
-	sprintf(message,"%u %d %d %lu %lu %lu", 5,
+	sprintf(message,"%u %d %lu %lu %lu", 5,
 		t->hFile, 
-		t->hFile2, 
 		t->dwType, 
 		t->dwFileStart,
 		t->dwFileLen);
@@ -269,9 +251,8 @@ class proc_remote{
     int encodeUnLockR(struct lockres *t)
     {
 	memset(message,0,M_SIZE);
-	sprintf(message,"%u %d %d", 6, 
-		t->res,
-		t->res2);
+	sprintf(message,"%u %d", 6, 
+		t->res);
 
 	return 0;
     }
@@ -279,9 +260,8 @@ class proc_remote{
     int encodeClose(struct closeargs *t)
     {
 	memset(message,0,M_SIZE);
-	sprintf(message,"%u %d %d", 7, 
-		t->hFile,
-		t->hFile2);
+	sprintf(message,"%u %d", 7, 
+		t->hFile);
 
 	return 0;
     }
@@ -289,27 +269,24 @@ class proc_remote{
     int encodeCloseR(struct closeres *t)
     {
 	memset(message,0,M_SIZE);
-	sprintf(message,"%u %d %d", 8, 
-		t->res,
-		t->res2);
+	sprintf(message,"%u %d", 8, 
+		t->res);
 
 	return 0;
     }
 
-    void decodeOpen(struct openargs *t)
-    {
-	sscanf(message, "%u%s%s%u", &op_type,
+    void decodeOpen(struct openargs *t){
+	sscanf(message, "%u%s%u%u%u", &op_type,
 		&(t->lpFileName),
-		&(t->lpFileName2),
-		&( t->dwDesiredAccess));
+		&( t->dwDesiredAccess), 
+		&(t->dwShareMode), 
+		&(t->dwCreationDisposition));
 	memset(message,0, M_SIZE);
     }
-
     void decodeOpenR(struct openres *t)
     {
-	sscanf(message, "%u%d%d", &op_type,
-		&(t->hFile),
-		&(t->hFile2)
+	sscanf(message, "%u%d", &op_type,
+		&(t->hFile)
 	      );
 
 	memset(message,0, M_SIZE);
@@ -317,9 +294,8 @@ class proc_remote{
 
     void decodeLock(struct lockargs *t)
     {
-	sscanf(message, "%u%d%d%lu%lu%lu", &op_type,
+	sscanf(message, "%u%d%lu%lu%lu", &op_type,
 		&(t->hFile),
-		&(t->hFile2),
 		&(t->dwType),
 		&(t->dwFileStart),	
 		&(t->dwFileLen));
@@ -328,16 +304,14 @@ class proc_remote{
 
     void decodeLockR(struct lockres *t)
     {
-	sscanf(message, "%u%d%d", &op_type,
-		&(t->res),
-		&(t->res2));
+	sscanf(message, "%u%d", &op_type,
+		&(t->res));
 	memset(message,0, M_SIZE);
     }
     void decodeUnLock(struct lockargs *t)
     {
-	sscanf(message, "%u%d%d%lu%lu%lu", &op_type,
+	sscanf(message, "%u%d%lu%lu%lu", &op_type,
 		&(t->hFile),
-		&(t->hFile2),
 		&(t->dwType),
 		&(t->dwFileStart),	
 		&(t->dwFileLen));
@@ -345,71 +319,29 @@ class proc_remote{
     }
     void decodeUnLockR(struct lockres *t)
     {
-	sscanf(message, "%u%d%d", &op_type,
-		&(t->res),
-		&(t->res2));
+	sscanf(message, "%u%d", &op_type,
+		&(t->res));
 	memset(message,0, M_SIZE);
     }
 
     void decodeClose(struct closeargs *t)
     {
-	sscanf(message, "%u%d%d", &op_type,
-		&(t->hFile),
-		&(t->hFile2));
+	sscanf(message, "%u%d", &op_type,
+		&(t->hFile));
 	memset(message,0, M_SIZE);
     }
 
 
     void decodeCloseR(struct closeres *t)
     {
-	sscanf(message, "%u%d%d", &op_type,
-		&(t->res),
-		&(t->res2));
+	sscanf(message, "%u%d", &op_type,
+		&(t->res));
 	memset(message,0, M_SIZE);
     }
 
     void decodeType()
     {
 	sscanf(message, "%u", &op_type);
-    }
-
-    int enfs_filelock(int fd, struct lockargs liov)
-    {
-	struct flock lock;
-	int ret = 0;
-
-	lock.l_type = liov.dwType;
-	lock.l_start = liov.dwFileStart;
-	lock.l_whence = SEEK_SET;//SEEK_SET,SEEK_CUR,SEEK_END
-	lock.l_len = liov.dwFileLen;
-	lock.l_pid = getpid();
-
-	ret = fcntl(fd, F_SETLK, &lock);
-	if (ret < 0) {
-	    bw_log(APP_LOG_DEBUG, "file set lock false,error=%s", strerror(errno));
-	}
-
-	return ret;
-    }
-
-    int enfs_fileunLock(int fd, struct lockargs liov)
-    {
-	struct flock lock;
-	int ret = 0;
-
-	//		lock.l_type = liov.dwType;
-	lock.l_type = F_UNLCK;
-	lock.l_start = liov.dwFileStart;
-	lock.l_whence = SEEK_SET;//SEEK_SET,SEEK_CUR,SEEK_END
-	lock.l_len = liov.dwFileLen;
-	lock.l_pid = getpid();
-
-	ret = fcntl(fd, F_SETLKW, &lock);
-	if (ret < 0) {
-	    bw_log(APP_LOG_DEBUG, "file set unlock false,error=%s",strerror(errno));
-	}
-
-	return ret;
     }
 #if 0
     void MyOutPutDebugStr(char* str,int par1=0,int par2=0,int par3=0,int par4=0)	
@@ -463,83 +395,6 @@ class proc_remote{
 	recv();
 	process();
 
-	return 0;
-    }
-
-    int ioctrl_get_deleg(int fd, enfs_fcb_delegation *deleg)
-    {
-	int ret = 0, ret2 = 0;
-	int cdev_fd = 0;
-	unsigned long long bytesret = 1;
-	struct ioctl_struct bw_arg;
-
-	memset(&bw_arg,0,sizeof(bw_arg));
-	cdev_fd = open("/dev/vdmap_dev", O_RDONLY);
-	if (fd <= 0) {
-	    ret = -ret;
-	    bw_log(APP_LOG_ERROR, "Open cdev failed(%d).", cdev_fd);
-	}
-
-	memset(&bw_arg, 0, sizeof(struct ioctl_struct));
-	bw_arg.inbuffer  = ((unsigned long long)(&fd));
-	bw_arg.in_size   = sizeof(unsigned int);
-	bw_arg.outbuffer = (unsigned long long)deleg;
-	bw_arg.out_size  = sizeof(enfs_fcb_delegation);
-	bw_arg.bytesreturned = (unsigned long long)(&bytesret);
-
-	ret = ioctl(cdev_fd,IOCTL_CODE_GET_DELEGATION_INFO,&bw_arg);
-	if (ret < 0) {
-	    ret = -ret;
-	    bw_log(APP_LOG_ERROR, "Call ioctl failed(%d).", ret);
-	    return ret;
-	}
-#if 0
-	printf("ioctrl_get_deleg test ioctl success,ret=%d, sizeof(enfs_fcb_delegation)=%lu, access=%u, status=%lu, seqid=%u, other[%llu-%llu-%llu]\n",
-		ret, sizeof(enfs_fcb_delegation), deleg->access, 
-		deleg->state_id.status, deleg->state_id.seqid, 
-		*(UINT64*)&deleg->state_id.other[0], 
-		*(UINT64*)&deleg->state_id.other[8], 
-		*(UINT64*)&deleg->state_id.other[16]);
-#endif
-
-	if (cdev_fd > 0) {
-	    ret2 = close(cdev_fd);
-	    if (ret2 < 0) {
-		ret = -ret2;
-		bw_log(APP_LOG_ERROR, "Close cdev failed(%d).", errno);
-	    }
-	}
-
-	return ret;
-    }
-
-    int doDelegationCmd()
-    {
-	GET_DELEGATION_CMD t;
-	decodeDelegationCmd(&t.hFile);
-	int ret = 1;
-
-	if(t.hFile < 0)
-	    return t.hFile;
-
-	memset(&g_DelegationInfor,0,sizeof(g_DelegationInfor));
-	ret = ioctrl_get_deleg(t.hFile,&g_DelegationInfor);
-	if (ret < 0) {
-	    bw_log(APP_LOG_ERROR, "ioctrl_read_error=%d,hFile=%d\n", errno, t.hFile);
-	    return ret;
-	}
-	else {
-	    printf("sizeof(enfs_fcb_delegation)=%lu, access=%u, status=%lu, seqid=%u, other[%llu-%llu-%llu]\n",
-		    sizeof(enfs_fcb_delegation), 
-		    g_DelegationInfor.access, 
-		    g_DelegationInfor.state_id.status, 
-		    g_DelegationInfor.state_id.seqid, 
-		    *(UINT64*)&g_DelegationInfor.state_id.other[0], 
-		    *(UINT64*)&g_DelegationInfor.state_id.other[8], 
-		    *(UINT64*)&g_DelegationInfor.state_id.other[16]);
-	}
-
-	encodeDelegationRes(&g_DelegationInfor);
 	return 0;
     }
 
@@ -628,11 +483,11 @@ class proc_remote{
 	return 0;
     }
 
-    int checkopen()
+    int checkopen(int hFile)
     {
 	int ret = 0;
 
-	if((g_openr.hFile >= 0 && g_openr.hFile2 >= 0) || (g_openr.hFile < 0 && g_openr.hFile2 < 0)) {
+	if((g_openr.hFile >= 0 && hFile >= 0) || (g_openr.hFile < 0 && hFile < 0)) {
 	    bw_log(APP_LOG_ERROR, "%s\t%-10d\t%-10d\n",g_opena.dwDesiredAccess,g_opena.dwDesiredAccess,1,0);
 	    ret = 0;
 	}
@@ -642,23 +497,31 @@ class proc_remote{
 	}
 
 	if(ret) {
-	    bw_log(APP_LOG_ERROR, "open not matchs! %p,%p",g_openr.hFile,g_openr.hFile2);
+	    bw_log(APP_LOG_ERROR, "open not matchs! %p,%p",g_openr.hFile,hFile);
 	}
 	else {
-	    bw_log(APP_LOG_ERROR, "open matchs, %p,%p",g_openr.hFile,g_openr.hFile2);
+	    bw_log(APP_LOG_ERROR, "open matchs, %p,%p",g_openr.hFile,hFile);
 	}
 
 	return ret;
     }
 
-    int checklock()
+    int checkopen2()
+    {
+	if (g_openr.hFile < 0) 
+	    return 0;
+
+	return 1;
+    }
+
+    int checklock(int res)
     {
 	int ret = 0;
 
-	if(g_lockr.res >= 0 && g_lockr.res2 >= 0) {
+	if(g_lockr.res >= 0 && res >= 0) {
 	    ret = 0;
 	}
-	else if(g_lockr.res < 0 && g_lockr.res2 < 0){
+	else if(g_lockr.res < 0 && res < 0){
 	    ret = 1;
 	}
 	else{
@@ -666,21 +529,21 @@ class proc_remote{
 	}
 
 	if (ret==0 || ret==1){
-	    bw_log(APP_LOG_ERROR, "lock match = %d,%d",g_lockr.res,g_lockr.res2);
+	    bw_log(APP_LOG_ERROR, "lock match = %d,%d",g_lockr.res,res);
 	}
 	else{
-	    bw_log(APP_LOG_ERROR, "lock not match = %d,%d",g_lockr.res,g_lockr.res2);
+	    bw_log(APP_LOG_ERROR, "lock not match = %d,%d",g_lockr.res,res);
 	}
 	return ret;
     }
 
-    int checkunlock()
+    int checkunlock(int res)
     {
 	int ret = 0;
-	if(g_unlockr.res >= 0 && g_unlockr.res2 >= 0) {
+	if(g_unlockr.res >= 0 && res >= 0) {
 	    ret = 0;
 	}
-	else if(g_unlockr.res < 0 && g_unlockr.res2 < 0){
+	else if(g_unlockr.res < 0 && res < 0){
 	    ret = 1;
 	}
 	else{
@@ -688,14 +551,14 @@ class proc_remote{
 	}
 
 	if (ret==0 || ret==1){
-	    bw_log(APP_LOG_ERROR, "unlock match = %d,%d",g_unlockr.res,g_unlockr.res2);
+	    bw_log(APP_LOG_ERROR, "unlock match = %d,%d",g_unlockr.res,res);
 	}
 	else{
-	    bw_log(APP_LOG_ERROR, "unlock not match = %d,%d",g_unlockr.res,g_unlockr.res2);
+	    bw_log(APP_LOG_ERROR, "unlock not match = %d,%d",g_unlockr.res,res);
 	}
 	return ret;
     }
-    
+
     int DoShell(bwfs_cmd cmd){
 
 	encodeShell(cmd);

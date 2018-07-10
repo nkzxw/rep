@@ -36,10 +36,10 @@ enum {
 #define __attribute__(x) /*nothing*/
 #endif
 
+static FILE *filefd=0;
 //#define bw_log(priority, fmt, ...) log_msg(priority, fmt, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
 #define bw_log(priority, fmt, args ...) log_msg(priority, (fmt), __FILE__, __LINE__, ##args)
-
-
+    
 //LOG_API void log_msg(const int priority, const char *fmt, ...);
 //	__attribute__((format(printf, 2, 3)));
 
