@@ -84,7 +84,6 @@ void log_msg(const int priority, const char *fmt, const char* FileName, int Line
 	fprintf(filefd, "\n");  
 	fflush(filefd);
 	if(priority >= 4) {
-	    printf("pri = %d", priority);
 	    fclose(filefd);
 	    exit(-1);
 	}

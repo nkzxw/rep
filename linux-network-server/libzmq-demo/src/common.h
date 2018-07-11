@@ -509,7 +509,7 @@ class proc_remote{
     int checkopen2()
     {
 	if (g_openr.hFile < 0) {
-	    bw_log(APP_LOG_ERROR,"client open file error");
+	    bw_log(APP_LOG_ERROR,"open file error %d", g_openr.hFile );
 	    return 0;
 	}
 
