@@ -210,8 +210,9 @@ static const char *progname = NULL;
 
 void usage(void)
 {
-    fprintf(stderr, "usage: %s -d server -f file -c compare_file -o output -t case_type -l log_level\n"
+    fprintf(stderr, "usage: %s -m mds -d server -f file -c compare_file -o output -t case_type -l log_level\n"
 	    "server: ip:port\n"
+	    "mds server: ip:port\n"
 	    "file: test file path\n"
 	    "compare_file: file path to compare\n"
 	    "output: log file path\n"
@@ -225,11 +226,13 @@ int main(int argc, char* argv[])
 {
     progname = argv[0];
     int c;
-    int server_index = 0;
     int case_type = 0;
     int log_level = -1;
     int conn_type = 0;
+    int server_index = 0;
     char server[MAX_SERVER][M_SIZE]={"0"};
+    int mds_index = 0;
+    char mds[MAX_SERVER][M_SIZE]={"0"};
     char pOutFile[M_SIZE]="\0";
     sprintf(target,"%s","/opt/1.txt");
     sprintf(pOutFile,"%s","/opt/zmq");
@@ -237,6 +240,7 @@ int main(int argc, char* argv[])
     while (1) {
 	struct option long_options[] = {
 	    {"server",  1,  0, 'd'},
+	    {"mds",  1,  0, 'm'},
 	    {"file",  1,  0, 'f'},
 	    //	    {"compare",  1,  0, 'c'},
 	    {"output",  1,  0, 'o'},
@@ -245,10 +249,14 @@ int main(int argc, char* argv[])
 	    { NULL , NULL , NULL , NULL }
 	};
 	int option_index = 0;
-	c = getopt_long(argc, argv, "d:f:o:t:l:", long_options, &option_index);
+	c = getopt_long(argc, argv, "m:d:f:o:t:l:", long_options, &option_index);
 	if (c == -1)
 	    break;
 	switch (c) {
+	    case 'm':
+		sprintf(mds[mds_index],"%s",optarg);
+		mds_index++;
+		break;
 	    case 'd':
 		sprintf(server[server_index],"%s",optarg);
 		server_index++;
@@ -277,20 +285,25 @@ int main(int argc, char* argv[])
     bw_log(APP_LOG_DEBUG, "%s\t%-20s\t%-10s\t%-10s","AccessMode","AccessMode","Bwfs","nfs");
 
     void * g_context = zmq_init(1); 
-    class proc_remote *pr1 = new proc_remote();
-    class proc_remote *pr2 = new proc_remote();
-    class proc_remote *pr3 = new proc_remote();
     //class proc_remote pr4={};
     if ((optind < argc) || (server_index < 1)) {
 	printf ("not enough args\n");
 	usage();
     }
-    pr1->connect(conn_type, server[0], g_context);
-    pr2->connect(conn_type,server[1], g_context);
+    class proc_remote *mds_pr[10];
+    class proc_remote *pr[10];
+    for(int i=0;i < mds_index;i++){
+	mds_pr[i]= new proc_remote();
+	mds_pr[i]->connect(conn_type,mds[i], g_context);
+    }
+    for(int i=0;i < server_index;i++){
+	pr[i]= new proc_remote();
+	pr[i]->connect(conn_type,server[i], g_context);
+    }
     //pr3.connect(conn_type,server[2], g_context);
     //pr4.connect(conn_type,server[3]);
     //ha_case1(pr1);
-    ha_case2(pr1,pr2);
+    ha_case2(mds_pr[0],pr[0]);
 #if 0
     if (case_type & 1) {
 	open_case1(pr1);
@@ -298,10 +311,12 @@ int main(int argc, char* argv[])
 	open_case2(pr1, pr3);
     }
 #endif
-    pr1->zclose(conn_type);
-    pr2->zclose(conn_type);
-    pr3->zclose(conn_type);
-    //	pr4.zclose(conn_type);
+    for(int i=0;i < mds_index;i++){
+	mds_pr[i]->zclose(conn_type);
+    }
+    for(int i=0;i < mds_index;i++){
+	pr[i]->zclose(conn_type);
+    }
     zmq_term(g_context);
     logClose();
 
