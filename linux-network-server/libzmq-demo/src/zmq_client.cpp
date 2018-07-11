@@ -79,10 +79,10 @@ void ha_case1(class proc_remote *pr1){
 void ha_case2(class proc_remote *mds, class proc_remote *client)
 {
     int res = -1;
-    res = mds->DoShell(STOP_SERVICE);
-    bw_log((res==1)?APP_LOG_DEBUG:APP_LOG_ERROR,"stop bwfs service = %s", (res==1)?"ok":"fail");
-    res = mds->DoShell(START_SERVICE);
-    bw_log((res==1)?APP_LOG_DEBUG:APP_LOG_ERROR,"start bwfs service = %s", (res==1)?"ok":"fail");
+    //res = mds->DoShell(STOP_SERVICE);
+    //bw_log((res==1)?APP_LOG_DEBUG:APP_LOG_ERROR,"stop bwfs service = %s", (res==1)?"ok":"fail");
+    //res = mds->DoShell(START_SERVICE);
+    //bw_log((res==1)?APP_LOG_DEBUG:APP_LOG_ERROR,"start bwfs service = %s", (res==1)?"ok":"fail");
     struct openargs opena={
 	"",
 	GENERIC_READ,
@@ -91,9 +91,8 @@ void ha_case2(class proc_remote *mds, class proc_remote *client)
     };
     strcpy(opena.lpFileName,target);
     client->openfile(&opena);
-    if (!client->checkopen2()){
-	bw_log(APP_LOG_ERROR,"client open file error");
-    }
+    client->checkopen2();
+    client->closefile();
 }
 
 //client1 lock file
@@ -102,15 +101,110 @@ void ha_case2(class proc_remote *mds, class proc_remote *client)
 //client2 lock file fail
 void ha_case3(class proc_remote *mds, class proc_remote *clnt1, class proc_remote *clnt2)
 {
+    struct openargs opena={
+	"",
+	GENERIC_READ,
+	7,
+	OPEN_ALWAYS
+    };
+    strcpy(opena.lpFileName,target);
 
+    clnt1->openfile(&opena);
+    clnt1->checkopen2();
+
+    clnt2->openfile(&opena);
+    clnt2->checkopen2();
+
+    struct lockargs locka ={clnt1->g_openr.hFile,1,1,1};
+    clnt1->lock(&locka);
+    clnt1->checklock(1);
+    struct lockargs lockb ={clnt2->g_openr.hFile,1,1,1};
+    clnt2->lock(&lockb);
+    clnt2->checklock(0);
+
+    int res = -1;
+    res = mds->DoShell(STOP_SERVICE);
+    bw_log((res==1)?APP_LOG_DEBUG:APP_LOG_ERROR,"stop bwfs service = %s", (res==1)?"ok":"fail");
+    res = mds->DoShell(START_SERVICE);
+    bw_log((res==1)?APP_LOG_DEBUG:APP_LOG_ERROR,"start bwfs service = %s", (res==1)?"ok":"fail");
+
+    clnt2->lock(&lockb);
+    clnt2->checklock(0);
+    clnt1->closefile();
+    clnt2->closefile();
 }
-//client1 lock file
-//client2 lock file fail
+//client1 open lock file success
 //mds block client and stop block
-//client2 lock file success
+//client2 open lock file success
 void ha_case4(class proc_remote *mds, class proc_remote *clnt1, class proc_remote *clnt2)
 {
+    struct openargs opena={
+	"",
+	GENERIC_READ,
+	7,
+	OPEN_ALWAYS
+    };
+    strcpy(opena.lpFileName,target);
 
+    clnt1->openfile(&opena);
+    clnt1->checkopen2();
+    struct lockargs locka ={clnt1->g_openr.hFile,1,1,1};
+    clnt1->lock(&locka);
+    clnt1->checklock(1);
+
+    int res = -1;
+    res = mds->DoShell(BLOCK_CLIENT);
+    bw_log((res==1)?APP_LOG_DEBUG:APP_LOG_ERROR,"block client = %s", (res==1)?"ok":"fail");
+    res = mds->DoShell(STOP_BLOCK_CLIENT);
+    bw_log((res==1)?APP_LOG_DEBUG:APP_LOG_ERROR,"stop block client = %s", (res==1)?"ok":"fail");
+
+    clnt2->openfile(&opena);
+    clnt2->checkopen2();
+    struct lockargs lockb ={clnt2->g_openr.hFile,1,1,1};
+    clnt2->lock(&lockb);
+    clnt2->checklock(1);
+
+    clnt1->closefile();
+    clnt2->closefile();
+}
+
+//client1 open lock file
+//client2 open success, lock file fail
+//mds block client and stop block
+//client2 lock file fail
+void ha_case5(class proc_remote *mds, class proc_remote *clnt1, class proc_remote *clnt2)
+{
+    struct openargs opena={
+	"",
+	GENERIC_READ,
+	7,
+	OPEN_ALWAYS
+    };
+    strcpy(opena.lpFileName,target);
+
+    clnt1->openfile(&opena);
+    clnt1->checkopen2();
+    clnt2->openfile(&opena);
+    clnt2->checkopen2();
+
+    struct lockargs locka ={clnt1->g_openr.hFile,1,1,1};
+    clnt1->lock(&locka);
+    clnt1->checklock(1);
+    struct lockargs lockb ={clnt2->g_openr.hFile,1,1,1};
+    clnt2->lock(&lockb);
+    clnt2->checklock(0);
+
+    int res = -1;
+    res = mds->DoShell(BLOCK_CLIENT);
+    bw_log((res==1)?APP_LOG_DEBUG:APP_LOG_ERROR,"block client = %s", (res==1)?"ok":"fail");
+    res = mds->DoShell(STOP_BLOCK_CLIENT);
+    bw_log((res==1)?APP_LOG_DEBUG:APP_LOG_ERROR,"stop block client = %s", (res==1)?"ok":"fail");
+
+    clnt2->lock(&lockb);
+    clnt2->checklock(0);
+
+    clnt1->closefile();
+    clnt2->closefile();
 }
 
 static const char *progname = NULL;
@@ -145,7 +239,7 @@ int main(int argc, char* argv[])
 	struct option long_options[] = {
 	    {"server",  1,  0, 'd'},
 	    {"file",  1,  0, 'f'},
-//	    {"compare",  1,  0, 'c'},
+	    //	    {"compare",  1,  0, 'c'},
 	    {"output",  1,  0, 'o'},
 	    {"case_type",  1,  0, 't'},
 	    {"log_level",  1,  0, 't'},
@@ -197,7 +291,7 @@ int main(int argc, char* argv[])
     pr2->connect(conn_type,server[1], g_context);
     //pr3.connect(conn_type,server[2], g_context);
     //pr4.connect(conn_type,server[3]);
-    ha_case1(pr1);
+    //ha_case1(pr1);
     ha_case2(pr1,pr2);
 #if 0
     if (case_type & 1) {
