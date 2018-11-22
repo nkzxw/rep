@@ -1,0 +1,40 @@
+--- ghetto-esxi-linked-clones.sh	2018-11-22 10:22:47.907738387 +0800
++++ ghetto-esxi-linked-clones-ide.sh	2018-11-22 09:58:19.547806092 +0800
+@@ -8,6 +8,7 @@
+ #######################################################################################################################################################
+ 
+ ESXI_VMWARE_VIM_CMD=/bin/vim-cmd
++#DEVEL_MODE=1
+ 
+ printUCSB() {
+         echo "######################################################"
+@@ -56,8 +57,8 @@
+         fi
+         if [ "${DEVEL_MODE}" -eq 1 ]; then echo "eth0 found and is valid"; fi
+ 
+-	vmdks_count=`grep -i scsi "${GOLDEN_VM}" | grep -i fileName | awk -F "\"" '{print $2}' | wc -l`
+-        vmdks=`grep -i scsi "${GOLDEN_VM}" | grep -i fileName | awk -F "\"" '{print $2}'`
++        vmdks_count=`grep -i ide0 "${GOLDEN_VM}" | grep -i fileName | awk -F "\"" '{print $2}' | wc -l`
++        vmdks=`grep -i ide0 "${GOLDEN_VM}" | grep -i fileName | awk -F "\"" '{print $2}'`
+         if [ "${vmdks_count}" -gt 1 ]; then echo "Found more than 1 VMDK associated with the Master VM, script only supports a single VMDK, please unattach the others and try again..."; exit 1; fi
+         if [ "${DEVEL_MODE}" -eq 1 ]; then echo "Single VMDK disk found"; fi
+ 
+@@ -164,10 +165,10 @@
+ 
+         cp ${GOLDEN_VM_PATH}.vmx ${STORAGE_PATH}/$FINAL_VM_NAME/$FINAL_VM_NAME.vmx
+ 
+-	VMDK_PATH=`grep -i scsi0:0.fileName ${GOLDEN_VM_PATH}.vmx | awk '{print $3}' | sed 's/"//g'`
++        VMDK_PATH=`grep -i ide0:0.fileName ${GOLDEN_VM_PATH}.vmx | awk '{print $3}' | sed 's/"//g'`
+ 	sed -i 's/displayName = "'${GOLDEN_VM_NAME}'"/displayName = "'${FINAL_VM_NAME}'"/' ${STORAGE_PATH}/$FINAL_VM_NAME/$FINAL_VM_NAME.vmx
+-        sed -i '/scsi0:0.fileName/d' ${STORAGE_PATH}/$FINAL_VM_NAME/$FINAL_VM_NAME.vmx
+-        echo "scsi0:0.fileName = \"${STORAGE_PATH}/${GOLDEN_VM_NAME}/${VMDK_PATH}\"" >> ${STORAGE_PATH}/$FINAL_VM_NAME/$FINAL_VM_NAME.vmx
++        sed -i '/ide0:0.fileName/d' ${STORAGE_PATH}/$FINAL_VM_NAME/$FINAL_VM_NAME.vmx
++        echo "ide0:0.fileName = \"${STORAGE_PATH}/${GOLDEN_VM_NAME}/${VMDK_PATH}\"" >> ${STORAGE_PATH}/$FINAL_VM_NAME/$FINAL_VM_NAME.vmx
+ 	sed -i 's/nvram = "'${GOLDEN_VM_NAME}.nvram'"/nvram = "'${FINAL_VM_NAME}.nvram'"/' ${STORAGE_PATH}/$FINAL_VM_NAME/$FINAL_VM_NAME.vmx
+ 	sed -i 's/extendedConfigFile = "'${GOLDEN_VM_NAME}.vmxf'"/extendedConfigFile = "'${FINAL_VM_NAME}.vmxf'"/' ${STORAGE_PATH}/$FINAL_VM_NAME/$FINAL_VM_NAME.vmx
+         sed -i '/ethernet0.generatedAddress/d' ${STORAGE_PATH}/$FINAL_VM_NAME/$FINAL_VM_NAME.vmx > /dev/null 2>&1
+@@ -228,3 +229,4 @@
+ fi
+ echo
+ rm -rf ${LC_EXECUTION_DIR}
++
