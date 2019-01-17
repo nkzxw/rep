@@ -5,7 +5,7 @@ call vundle#begin()
 "Plugin 'taglist-plus'
 call vundle#end()           
 filetype on
-set mouse=
+set mouse=c
 "set list
 set number
 set shiftwidth=4
@@ -13,9 +13,10 @@ set ff=unix "set fileformats=unix,dos
 set cindent
 set clipboard+=unnamed " Vim 的默认寄存器和系统剪贴板共享
 "syntax on
-set tags=tags;
+"set tags=tags;
+set tags=./tags;,tags
 "set autochdir "
-set tags+=~/.vim/systags
+"set tags+=~/.vim/systags
 let Tlist_Show_One_File = 1      "不同时显示多个文件的tag，只显示当前文件的 
 let Tlist_Exit_OnlyWindow =  1   "如果taglist窗口是最后一个窗口，则退出vim 
 let Tlist_Auto_Open = 1          "启动vim后自动打开taglist窗口
