@@ -50,7 +50,7 @@ class duLogin(object):
         try:
             json_data = self.session.post(url, data=post_data)
         except Exception as excep:
-            logging.error("detail get_json_data error: %s", excep)
+            logging.error("get data error: %s", excep)
             return self.login()
         logging.debug("duLogin: %s", json_data.status_code)
         return self
@@ -63,15 +63,15 @@ class duLogin(object):
         try:
             response = self.session.get(url) 
         except Exception as excep:
-            logging.error("detail get_json_data error: %s", excep)
+            logging.error("get data error: %s", excep)
             return
 
         #logging.debug("get_json_data: " + response.text)
         if(response.text):
-            soup = BeautifulSoup(response.text, 'html.parser', from_encoding='utf-8')
+            soup = BeautifulSoup(response.text, 'html.parser')
             dd = soup.find_all("dd")
             for film_item in dd:
-                logging.debug("get_json_data: %s", film_item)
+                #logging.debug("get_json_data: %s", film_item)
                 url = film_item.find_all('a')[0]
                 film_detail_url = url.get('href')
                 film_detail_title = url.contents[0]
@@ -83,11 +83,11 @@ class duLogin(object):
         try:
             response = self.session.get(base) 
         except Exception as excep:
-            logging.error("detail get_json_data error: %s", excep)
+            logging.error("get data error: %s", excep)
             return
         url = self.parse_product_data(response.text)
-        logging.debug("get_json_data: " + url)
-        url = "http://v.mypep.cn" + url   
+        url = "http://v.mypep.cn" + url     
+        logging.debug("get vidoe data: " + url)
         self.session.headers.update({"Referer": base})
         try:
             r = self.session.get(url,stream=True) 
@@ -97,23 +97,23 @@ class duLogin(object):
                     f.write(chunk)
             f.close()
         except Exception as excep:
-            logging.error("detail get_json_data error: %s", excep)
+            logging.error("get data error: %s", excep)
         return
        
     def parse_product_data(self, setting):
         b = "video_url: \"(?P<result>.*?)\""
-        B = re.compile(b,re.IGNORECASE)
+        B = re.compile(b)
         try:
             text = B.search(setting).group("result")
         except Exception as excep:
             text = "nodetil"
-            logging.debug("get_json_data: %s" , excep)
+            logging.error("parse_product_data: %s" , excep)
         return text
 
 
 if __name__ == "__main__":
 
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s\t%(levelname)s\t%(message)s", filename='./loggmsg.log',filemode='w')
-    #filemode = w 覆盖写，filemode = a追加
+    #filemode = w覆盖写，filemode = a追加
     du = duLogin("zhou846", "zhou@1986727").login()
     du.detail_list(23246)
