@@ -1,14 +1,9 @@
 # _*_ coding: utf-8 _*_
 
 import re
-import rsa
 import time
-import json
-import base64
 import logging
-import binascii
 import requests
-import urllib
 import os
 from bs4 import BeautifulSoup
 
@@ -29,7 +24,6 @@ class duLogin(object):
         "upgrade-insecure-requests": "1",
         "user-agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"
         })
-        self.li = []
 
     def login(self):
         """
@@ -106,7 +100,7 @@ class duLogin(object):
         try:
             text = B.search(setting).group("result")
         except Exception as excep:
-            text = "nodetil"
+            text = "no-url"
             logging.error("parse_product_data: %s" , excep)
         return text
 
