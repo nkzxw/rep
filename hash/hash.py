@@ -1,3 +1,7 @@
+# https://www.cnblogs.com/yuxc/archive/2012/06/22/2558312.html
+# https://zhuanlan.zhihu.com/p/60963885
+# https://github.com/openstack/swift/blob/master/swift/common/ring/ring.py
+
 # 普通Hash算法与场景分析
 #
 # 先来看一个简单的例子假设我们手里有N台存储服务器（以下简称node），
