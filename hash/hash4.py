@@ -41,9 +41,7 @@ desired_count = DATA_ID_COUNT / NODE_COUNT
 print('%d: Desired data ids per node' % desired_count)
 max_count = max(node_counts)
 over = 100.0 * (max_count - desired_count) / desired_count
-print('%d: Most data ids on one node, %.02f%% over' % \
-    (max_count, over))
+print('%d: Most data ids on one node, %.02f%% over' % (max_count, over))
 min_count = min(node_counts)
 under = 100.0 * (desired_count - min_count) / desired_count
-print('%d: Least data ids on one node, %.02f%% under' % \
-    (min_count, under))
+print('%d: Least data ids on one node, %.02f%% under' % (min_count, under))

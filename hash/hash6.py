@@ -13,8 +13,8 @@
 # 因此就需要一种机制对机器的物理位置进行隔离。所以引入了zone的概念。
 # 在ring代码中引入zone_count，把这些node分割到16个zone中去。
 # 其中partition的replica不能放在同一个node上或同一个zone内。
-# 
-# 
+#
+#
 # 到目前为止，ring的基本功能都已经有了：一致性哈希ring、partition、partition power、replica、zone。
 # 目前还差weight以及将以上代码改写为类封装成module。
 
@@ -45,7 +45,7 @@ node_counts = [0] * NODE_COUNT
 zone_counts = [0] * ZONE_COUNT
 for data_id in range(DATA_ID_COUNT):
     part = unpack_from('>I',
-        md5(str(data_id).encode("utf-8")).digest())[0] >> PARTITION_SHIFT
+                       md5(str(data_id).encode("utf-8")).digest())[0] >> PARTITION_SHIFT
     node_ids = [part2node[part]]
     zones = [node2zone[node_ids[0]]]
     node_counts[node_ids[0]] += 1
@@ -64,19 +64,15 @@ desired_count = DATA_ID_COUNT / NODE_COUNT * REPLICAS
 print('%d: Desired data ids per node' % desired_count)
 max_count = max(node_counts)
 over = 100.0 * (max_count - desired_count) / desired_count
-print('%d: Most data ids on one node, %.02f%% over' % \
-    (max_count, over))
+print('%d: Most data ids on one node, %.02f%% over' % (max_count, over))
 min_count = min(node_counts)
 under = 100.0 * (desired_count - min_count) / desired_count
-print('%d: Least data ids on one node, %.02f%% under' % \
-    (min_count, under))
+print('%d: Least data ids on one node, %.02f%% under' % (min_count, under))
 desired_count = DATA_ID_COUNT / ZONE_COUNT * REPLICAS
 print('%d: Desired data ids per zone' % desired_count)
 max_count = max(zone_counts)
 over = 100.0 * (max_count - desired_count) / desired_count
-print('%d: Most data ids in one zone, %.02f%% over' % \
-    (max_count, over))
+print('%d: Most data ids in one zone, %.02f%% over' % (max_count, over))
 min_count = min(zone_counts)
 under = 100.0 * (desired_count - min_count) / desired_count
-print('%d: Least data ids in one zone, %.02f%% under' % \
-    (min_count, under))
+print('%d: Least data ids in one zone, %.02f%% under' % (min_count, under))
