@@ -12,8 +12,7 @@ DATA_ID_COUNT = 10000000
 
 moved_ids = 0
 for data_id in range(DATA_ID_COUNT):
-    data_id = str(data_id)
-    hsh = unpack_from('>I', md5(data_id.encode("utf-8")).digest())[0]
+    hsh = unpack_from('>I', md5(str(data_id).encode("utf-8")).digest())[0]
     node_id = hsh % NODE_COUNT
     new_node_id = hsh % NEW_NODE_COUNT
     if node_id != new_node_id:
