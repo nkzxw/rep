@@ -1,5 +1,6 @@
 # https://www.cnblogs.com/yuxc/archive/2012/06/22/2558312.html
 # https://zhuanlan.zhihu.com/p/60963885
+# https://docs.openstack.org/swift/latest/overview_ring.html
 # https://github.com/openstack/swift/blob/master/swift/common/ring/ring.py
 
 # 普通Hash算法与场景分析
