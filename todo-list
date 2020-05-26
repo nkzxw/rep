@@ -1,11 +1,11 @@
-实现leveldb，分析格式，合并，读写流程。
+分析leveldb格式、合并流程、读写流程。实现leveldb。
 rocketdb
 
 dubbo
 微服务
 protocol buff
 
-实现raft
+实现raft简易版
 布隆过滤
 docker
 协程库
@@ -13,17 +13,12 @@ go虚拟机
 高性能ssdb
 时间轮
 
-
-
 数据库与性能调优。
 c++内存，c内存（内核），cpp语言模版
-
 
 学一下大神的工程结构
 写一个内核，或调试一个内核源码。知道各上下文的存储和文件，socket读写运行过程
 
-自己的数据库
+自己的数据库，从TiDB(PingCAP)，论文。
 
-
-
-使用github的编辑器
+使用github的编辑器。。
